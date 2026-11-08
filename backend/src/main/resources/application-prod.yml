@@ -1,9 +1,11 @@
 # Perfil de producción: activar con SPRING_PROFILES_ACTIVE=prod
 spring:
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    # Opción 1: DATABASE_URL completa en formato JDBC.
+    # Opción 2 (Render): DB_HOST, DB_PORT, DB_NAME, DB_USER y DB_PASSWORD por separado.
+    url: ${DATABASE_URL:jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}}
+    username: ${DATABASE_USERNAME:${DB_USER}}
+    password: ${DATABASE_PASSWORD:${DB_PASSWORD}}
     hikari:
       maximum-pool-size: ${DB_POOL_SIZE:5}
 

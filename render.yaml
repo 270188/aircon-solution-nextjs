@@ -1,26 +1,27 @@
-# Blueprint de Render para el backend Spring Boot.
-# Render -> New -> Blueprint -> elige este repositorio. Te pedirá los valores marcados con sync: false.
+# Blueprint de Render: un servicio web gratis (Spring Boot + página Angular en la misma imagen).
+# La base de datos PostgreSQL está en Neon (plan gratis, no expira). Sus datos se cargan
+# como variables secretas al aprobar el blueprint.
 services:
   - type: web
-    name: airconsolution-api
+    name: airconsolution
     runtime: docker
-    rootDir: backend
     dockerfilePath: ./Dockerfile
+    dockerContext: .
     plan: free
     region: oregon
     healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      - key: ALLOWED_ORIGINS
-        value: https://airconsolutionsac.com,https://www.airconsolutionsac.com,https://*.vercel.app
-      - key: ADMIN_USERNAME
-        value: admin
-      - key: ADMIN_PASSWORD
-        sync: false
       - key: DATABASE_URL
         sync: false
       - key: DATABASE_USERNAME
         sync: false
       - key: DATABASE_PASSWORD
         sync: false
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://airconsolutionsac.com,https://www.airconsolutionsac.com,https://*.onrender.com

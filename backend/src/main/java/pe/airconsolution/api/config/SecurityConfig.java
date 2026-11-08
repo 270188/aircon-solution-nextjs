@@ -29,6 +29,14 @@ public class SecurityConfig {
 
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
+    /** El hash corresponde al atributo onload="this.media='all'" que Angular genera para cargar el CSS. */
+    static final String CONTENT_SECURITY_POLICY = "default-src 'self'; "
+            + "script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='; "
+            + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; "
+            + "img-src 'self' data: blob:; connect-src 'self'; "
+            + "frame-src https://maps.google.com https://www.google.com; base-uri 'self'; form-action 'self'; "
+            + "object-src 'none'; frame-ancestors 'none'";
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, RateLimitFilter rateLimitFilter) throws Exception {
         http
@@ -41,13 +49,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/**", "/actuator/health/**", "/actuator/info",
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .anyRequest().denyAll())
+                        .requestMatchers("/actuator/**").denyAll()
+                        // El resto son los archivos de la página web en Angular (públicos).
+                        .anyRequest().permitAll())
                 // 401 sin cabecera WWW-Authenticate para que el navegador no muestre su ventana de login.
                 .httpBasic(basic -> basic.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .headers(h -> h
                         .contentTypeOptions(Customizer.withDefaults())
                         .frameOptions(f -> f.deny())
                         .referrerPolicy(r -> r.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY))
                         .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000)))
                 .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.www.BasicAuthenticationFilter.class);
         return http.build();
