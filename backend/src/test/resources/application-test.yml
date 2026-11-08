@@ -1,0 +1,5 @@
+app:
+  admin:
+    password: test-secret
+  rate-limit:
+    requests-per-minute: 1000

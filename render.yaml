@@ -1,0 +1,26 @@
+# Blueprint de Render para el backend Spring Boot.
+# Render -> New -> Blueprint -> elige este repositorio. Te pedirá los valores marcados con sync: false.
+services:
+  - type: web
+    name: airconsolution-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: ALLOWED_ORIGINS
+        value: https://airconsolutionsac.com,https://www.airconsolutionsac.com,https://*.vercel.app
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false

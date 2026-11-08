@@ -1,0 +1,221 @@
+.grid {
+  display: grid;
+  gap: 32px;
+  @media (min-width: 980px) {
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 40px;
+  }
+}
+.info {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.tile {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  transition: transform 0.4s var(--ease-spring), box-shadow 0.3s, border-color 0.3s;
+  &:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--blue-500);
+    .ic {
+      transform: rotate(-12deg) scale(1.1);
+    }
+  }
+  small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+  strong {
+    display: block;
+    font-size: 1rem;
+    word-break: break-word;
+  }
+  em {
+    display: block;
+    font-style: normal;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+  .ic {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--grad-ice);
+    transition: transform 0.5s var(--ease-spring);
+  }
+  &.wa .ic {
+    background: var(--green-500);
+  }
+}
+.map {
+  height: 230px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+}
+.map-btn {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  font-weight: 700;
+  background: radial-gradient(circle at 30% 30%, rgba(94, 198, 255, 0.25), transparent 50%),
+    repeating-linear-gradient(45deg, var(--bg-soft) 0 14px, var(--bg-elevated) 14px 28px);
+  .pin {
+    color: var(--orange-500);
+    animation: bounce 1.6s var(--ease-spring) infinite;
+  }
+}
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.form {
+  padding: 28px 22px;
+  @media (min-width: 640px) {
+    padding: 36px;
+  }
+  h3 {
+    font-size: 1.35rem;
+    margin-bottom: 22px;
+  }
+}
+.row {
+  display: grid;
+  gap: 0 14px;
+  @media (min-width: 560px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.sent {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 50px 10px;
+  animation: fadeUp 0.6s var(--ease-out);
+  p {
+    color: var(--text-muted);
+  }
+}
+.plane {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--grad-ice);
+  animation: fly 1.2s var(--ease-out) both;
+}
+@keyframes fly {
+  0% {
+    transform: translateX(-80px) rotate(-30deg) scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(10px) rotate(8deg) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.newsletter {
+  position: relative;
+  overflow: hidden;
+  margin-top: 64px;
+  padding: 36px 28px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(130deg, #0d1b2e, #133059 60%, #1565c0);
+  color: #fff;
+  display: grid;
+  gap: 22px;
+  align-items: center;
+  @media (min-width: 900px) {
+    grid-template-columns: 1fr 1.1fr;
+    padding: 44px 48px;
+  }
+  p {
+    color: #c9d6e6;
+  }
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+}
+.nl-glow {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  right: -100px;
+  top: -160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 130, 31, 0.45), transparent 65%);
+  animation: drift 10s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  to {
+    transform: translate(-120px, 80px);
+  }
+}
+.nl-text,
+.nl-form,
+.nl-done {
+  position: relative;
+}
+.nl-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  input[type='email'] {
+    flex: 1 1 220px;
+    padding: 15px 22px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    &::placeholder {
+      color: #9fb0c4;
+    }
+    &:focus {
+      outline: none;
+      border-color: var(--ice-400);
+      background: rgba(255, 255, 255, 0.14);
+    }
+  }
+}
+.nl-done {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 700;
+  color: #fff !important;
+  animation: fadeUp 0.5s var(--ease-out);
+}

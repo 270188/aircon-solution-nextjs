@@ -1,0 +1,53 @@
+<section class="section" id="trabajos" aria-labelledby="gallery-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow" appReveal="blur">Trabajos reales</span>
+      <h2 class="section-title" id="gallery-title" appReveal="up">Nuestro trabajo <span class="text-gradient">habla por nosotros</span></h2>
+      <p appReveal="up" [revealDelay]="100">Fotos de servicios realizados por nuestro equipo en hogares, oficinas, locales comerciales e industrias.</p>
+    </div>
+
+    <div class="filters" role="tablist" aria-label="Filtrar trabajos" appReveal="up" [revealDelay]="150">
+      @for (f of filters; track f.id) {
+        <button type="button" role="tab" [attr.aria-selected]="filter() === f.id" [class.active]="filter() === f.id" (click)="setFilter(f.id)">
+          {{ f.label }}
+        </button>
+      }
+    </div>
+
+    <div class="masonry">
+      @for (item of items(); track item.image; let i = $index) {
+        <button type="button" class="tile" [class.tall]="item.tall" [style.view-transition-name]="'g' + item.image.replace('/', '-').replace('/', '-')"
+          (click)="open(i, $event)" [attr.aria-label]="'Ampliar foto: ' + item.caption" appReveal="zoom" [revealDelay]="(i % 4) * 70">
+          <picture>
+            <source [srcset]="item.image + '.webp'" type="image/webp" />
+            <img [src]="item.image + '.jpg'" [alt]="item.caption" loading="lazy" />
+          </picture>
+          <span class="cap">
+            <span>{{ item.caption }}</span>
+            <span class="zoom"><app-icon name="zoom" [size]="20" /></span>
+          </span>
+        </button>
+      } @empty {
+        <p class="empty">Pronto subiremos fotos de esta categoría.</p>
+      }
+    </div>
+  </div>
+</section>
+
+@if (current(); as item) {
+  <div class="lightbox" role="dialog" aria-modal="true" [attr.aria-label]="item.caption" (click)="close()"
+    (touchstart)="touchStart($event)" (touchend)="touchEnd($event)">
+    <button type="button" class="close" (click)="close()" aria-label="Cerrar"><app-icon name="close" [size]="26" /></button>
+    <button type="button" class="nav prev" (click)="$event.stopPropagation(); step(-1)" aria-label="Foto anterior"><app-icon name="chevronLeft" [size]="30" /></button>
+    @for (k of [openIndex()]; track k) {
+      <figure [class]="direction()" (click)="$event.stopPropagation()">
+        <picture>
+          <source [srcset]="item.image + '.webp'" type="image/webp" />
+          <img [src]="item.image + '.jpg'" [alt]="item.caption" />
+        </picture>
+        <figcaption>{{ item.caption }} <span>{{ (openIndex() ?? 0) + 1 }} / {{ items().length }}</span></figcaption>
+      </figure>
+    }
+    <button type="button" class="nav next" (click)="$event.stopPropagation(); step(1)" aria-label="Foto siguiente"><app-icon name="chevronRight" [size]="30" /></button>
+  </div>
+}

@@ -1,0 +1,105 @@
+<section class="section" id="contacto" aria-labelledby="contact-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow" appReveal="blur">Contacto</span>
+      <h2 class="section-title" id="contact-title" appReveal="up">Conversemos sobre <span class="text-gradient">tu proyecto</span></h2>
+      <p appReveal="up" [revealDelay]="80">Cotizaciones sin compromiso. Respondemos el mismo día.</p>
+    </div>
+
+    <div class="grid">
+      <div class="info">
+        <a class="tile" [href]="'tel:' + business.phone" appReveal="left">
+          <span class="ic"><app-icon name="phone" /></span>
+          <span><small>Llámanos</small><strong>{{ business.phoneDisplay }}</strong><em>{{ business.phone2Display }}</em></span>
+        </a>
+        <a class="tile wa" [href]="wa" target="_blank" rel="noopener" appReveal="left" [revealDelay]="80">
+          <span class="ic"><app-icon name="whatsapp" /></span>
+          <span><small>WhatsApp</small><strong>Escríbenos ahora</strong></span>
+        </a>
+        <a class="tile" [href]="'mailto:' + business.email" appReveal="left" [revealDelay]="160">
+          <span class="ic"><app-icon name="mail" /></span>
+          <span><small>Correo</small><strong>{{ business.email }}</strong></span>
+        </a>
+        <a class="tile" [href]="business.mapLink" target="_blank" rel="noopener" appReveal="left" [revealDelay]="240">
+          <span class="ic"><app-icon name="pin" /></span>
+          <span><small>Visítanos</small><strong>{{ business.address }}</strong></span>
+        </a>
+
+        <div class="map" appReveal="zoom" [revealDelay]="300">
+          @if (showMap()) {
+            <iframe [src]="mapUrl" title="Ubicación de AIRCONSOLUTION SERVICES SAC en Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          } @else {
+            <button type="button" class="map-btn" (click)="showMap.set(true)">
+              <span class="pin"><app-icon name="pin" [size]="30" /></span>
+              Ver mapa
+            </button>
+          }
+        </div>
+      </div>
+
+      <form class="card form" [formGroup]="form" (ngSubmit)="submit()" novalidate appReveal="right">
+        @if (sent()) {
+          <div class="sent" role="status">
+            <div class="plane" aria-hidden="true"><app-icon name="arrowRight" [size]="34" /></div>
+            <h3>¡Gracias por escribirnos!</h3>
+            <p>Recibimos tu mensaje y te contactaremos muy pronto.</p>
+            <button type="button" class="btn btn-outline btn-sm" (click)="sent.set(false)">Enviar otro mensaje</button>
+          </div>
+        } @else {
+          <h3>Envíanos un mensaje</h3>
+          <div class="field" [class.invalid]="invalid('name')">
+            <input id="c-name" formControlName="name" placeholder=" " autocomplete="name" [attr.aria-invalid]="invalid('name')" />
+            <label for="c-name">Nombre *</label>
+            @if (invalid('name')) { <span class="error">{{ errorFor('name') }}</span> }
+          </div>
+          <div class="row">
+            <div class="field" [class.invalid]="invalid('phone')">
+              <input id="c-phone" formControlName="phone" type="tel" inputmode="tel" placeholder=" " autocomplete="tel" [attr.aria-invalid]="invalid('phone')" />
+              <label for="c-phone">Teléfono *</label>
+              @if (invalid('phone')) { <span class="error">{{ errorFor('phone') }}</span> }
+            </div>
+            <div class="field" [class.invalid]="invalid('email')">
+              <input id="c-email" formControlName="email" type="email" placeholder=" " autocomplete="email" [attr.aria-invalid]="invalid('email')" />
+              <label for="c-email">Correo</label>
+              @if (invalid('email')) { <span class="error">{{ errorFor('email') }}</span> }
+            </div>
+          </div>
+          <div class="field" [class.invalid]="invalid('message')">
+            <textarea id="c-msg" formControlName="message" placeholder=" " maxlength="2000" [attr.aria-invalid]="invalid('message')"></textarea>
+            <label for="c-msg">¿En qué te podemos ayudar? *</label>
+            @if (invalid('message')) { <span class="error">{{ errorFor('message') }}</span> }
+          </div>
+          <input class="honeypot" formControlName="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <label class="consent" [class.invalid]="invalid('privacyAccepted')">
+            <input type="checkbox" formControlName="privacyAccepted" />
+            <span>Acepto la <a routerLink="/privacidad" target="_blank">política de privacidad</a>. *</span>
+          </label>
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="sending()" appRipple>
+            @if (sending()) { <span class="spinner"></span> Enviando... } @else { Enviar mensaje <app-icon name="arrowRight" [size]="18" /> }
+          </button>
+        }
+      </form>
+    </div>
+
+    <div class="newsletter" appReveal="up">
+      <div class="nl-glow" aria-hidden="true"></div>
+      <div class="nl-text">
+        <h3>Consejos para cuidar tus equipos</h3>
+        <p>Recibe recordatorios de mantenimiento y promociones exclusivas. Sin spam.</p>
+      </div>
+      @if (newsletterState() === 'done') {
+        <p class="nl-done" role="status"><app-icon name="checkCircle" [size]="24" /> ¡Listo! Ya estás suscrito.</p>
+      } @else {
+        <form class="nl-form" (submit)="subscribe($event, hp.value)">
+          <label for="nl-email" class="sr-only">Tu correo</label>
+          <input id="nl-email" type="email" placeholder="tu@correo.com" autocomplete="email" required
+            [value]="newsletterEmail()" (input)="newsletterEmail.set($any($event.target).value)" />
+          <input #hp class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button type="submit" class="btn btn-accent" [disabled]="newsletterState() === 'sending'" appRipple>
+            @if (newsletterState() === 'sending') { <span class="spinner"></span> } @else { Suscribirme }
+          </button>
+        </form>
+      }
+    </div>
+  </div>
+</section>

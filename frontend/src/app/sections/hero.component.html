@@ -1,0 +1,71 @@
+<section class="hero" id="inicio" aria-labelledby="hero-title">
+  <div class="bg" [appParallax]="-0.25">
+    <picture>
+      <source srcset="images/hero.webp" type="image/webp" />
+      <img src="images/hero.jpg" alt="" fetchpriority="high" />
+    </picture>
+  </div>
+  <div class="overlay"></div>
+  <div class="aurora"><span></span><span></span><span></span></div>
+  <app-airflow-canvas />
+
+  <div class="container content">
+    <p class="badge"><span class="dot"></span> Atención de emergencias 24/7 en Lima</p>
+
+    <h1 id="hero-title">
+      <span class="line">
+        @for (w of titleWords; track w; let i = $index) {
+          <span class="word" [style.--d]="i">{{ w }}&nbsp;</span>
+        }
+      </span>
+      <span class="line typed-line">
+        <span class="typed text-gradient">{{ typed() }}</span><span class="caret" aria-hidden="true"></span>
+      </span>
+      <span class="line"><span class="word" [style.--d]="4">y&nbsp;</span><span class="word fire" [style.--d]="5">confort</span></span>
+    </h1>
+    <span class="sr-only">Climatización, mantenimiento, electricidad y reparaciones.</span>
+
+    <p class="lead">
+      Instalamos, reparamos y mantenemos tus equipos de aire acondicionado e instalaciones eléctricas,
+      con técnicos capacitados, repuestos originales y garantía por escrito.
+    </p>
+
+    <div class="cta">
+      <a href="#reservar" class="btn btn-accent" appMagnetic appRipple (click)="$event.preventDefault(); ui.scrollTo('reservar')">
+        <app-icon name="calendar" [size]="20" /> Reserva tu visita
+      </a>
+      <a [href]="wa" target="_blank" rel="noopener" class="btn btn-ghost" appMagnetic appRipple>
+        <app-icon name="whatsapp" [size]="20" /> Cotiza por WhatsApp
+      </a>
+    </div>
+
+    <ul class="trust">
+      <li><app-icon name="shield" [size]="18" /> Garantía por escrito</li>
+      <li><app-icon name="clock" [size]="18" /> Respuesta el mismo día</li>
+      <li><app-icon name="checkCircle" [size]="18" /> Todas las marcas</li>
+    </ul>
+  </div>
+
+  <div class="floating">
+    <div class="glass-card c1">
+      <span class="ic ice"><app-icon name="snow" [size]="22" /></span>
+      <div><strong>18 °C</strong><small>Confort garantizado</small></div>
+    </div>
+    <div class="glass-card c2">
+      <div class="stars">
+        @for (s of [1, 2, 3, 4, 5]; track s) {
+          <app-icon name="star" [size]="16" />
+        }
+      </div>
+      <small>Clientes felices en Lima</small>
+    </div>
+    <div class="glass-card c3">
+      <span class="ic fire-bg"><app-icon name="bolt" [size]="22" /></span>
+      <div><strong>24/7</strong><small>Emergencias</small></div>
+    </div>
+  </div>
+
+  <a href="#servicios" class="scroll-cue" (click)="$event.preventDefault(); ui.scrollTo('servicios')" aria-label="Ver servicios">
+    <span class="mouse"><span></span></span>
+  </a>
+</section>

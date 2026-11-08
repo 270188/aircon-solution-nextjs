@@ -1,0 +1,201 @@
+<section class="section booking" id="reservar" aria-labelledby="booking-title">
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow" appReveal="blur">Reserva en línea</span>
+      <h2 class="section-title" id="booking-title" appReveal="up">Agenda tu visita técnica <span class="text-fire">en 1 minuto</span></h2>
+      <p appReveal="up" [revealDelay]="100">Elige el servicio, la fecha y la hora. Te confirmamos por WhatsApp y recibes un código para seguir tu cita.</p>
+    </div>
+
+    <div class="wizard" #card appReveal="zoom" [revealDelay]="150">
+      @if (step() < 3) {
+        <ol class="stepper" aria-label="Pasos de la reserva">
+          @for (s of steps; track s; let i = $index) {
+            <li [class.done]="step() > i" [class.current]="step() === i">
+              <button type="button" (click)="goTo(i)" [disabled]="i > step()" [attr.aria-current]="step() === i ? 'step' : null">
+                <span class="dot">
+                  @if (step() > i) { <app-icon name="check" [size]="16" [stroke]="3" /> } @else { {{ i + 1 }} }
+                </span>
+                <span class="lbl">{{ s }}</span>
+              </button>
+            </li>
+          }
+          <span class="track" aria-hidden="true"><span [style.transform]="'scaleX(' + step() / 2 + ')'"></span></span>
+        </ol>
+      }
+
+      <div class="panes">
+        @switch (step()) {
+          @case (0) {
+            <div class="pane" aria-live="polite">
+              <h3>¿Qué servicio necesitas?</h3>
+              <div class="services">
+                @for (s of serviceOptions; track s.id; let i = $index) {
+                  <button type="button" class="svc" [class.selected]="service() === s.id" [style.--i]="i"
+                    (click)="chooseService(s.id)" [attr.aria-pressed]="service() === s.id" appRipple>
+                    <span class="ic" [class.urgent]="s.id === 'EMERGENCIA'"><app-icon [name]="s.icon" [size]="24" /></span>
+                    <span>{{ s.label }}</span>
+                    <span class="chk"><app-icon name="check" [size]="14" [stroke]="3" /></span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+          @case (1) {
+            <div class="pane two-col">
+              <div class="calendar">
+                <div class="cal-head">
+                  <button type="button" (click)="changeMonth(-1)" [disabled]="!canGoPrev()" aria-label="Mes anterior"><app-icon name="chevronLeft" /></button>
+                  <strong aria-live="polite">{{ monthLabel() }}</strong>
+                  <button type="button" (click)="changeMonth(1)" [disabled]="!canGoNext()" aria-label="Mes siguiente"><app-icon name="chevronRight" /></button>
+                </div>
+                <div class="dow">
+                  @for (d of weekdays; track d) { <span>{{ d }}</span> }
+                </div>
+                @for (m of [monthLabel()]; track m) {
+                  <div class="days" [class]="'days ' + monthAnim()" role="grid">
+                    @for (c of cells(); track $index) {
+                      @if (c) {
+                        <button type="button" class="day" [class.today]="c.today" [class.selected]="date() === c.iso"
+                          [disabled]="c.disabled" (click)="pickDate(c)" [attr.aria-label]="longDate(c.iso)" [attr.aria-pressed]="date() === c.iso">
+                          {{ c.day }}
+                        </button>
+                      } @else {
+                        <span></span>
+                      }
+                    }
+                  </div>
+                }
+                <p class="note"><app-icon name="clock" [size]="16" /> Lunes a sábado. Domingos y feriados solo emergencias por WhatsApp.</p>
+              </div>
+
+              <div class="slots">
+                <h3>{{ date() ? 'Horarios del ' + longDate(date()!) : 'Elige un día del calendario' }}</h3>
+                @if (!date()) {
+                  <div class="placeholder">
+                    <app-icon name="calendar" [size]="46" [stroke]="1.4" />
+                    <p>Selecciona una fecha para ver los horarios disponibles.</p>
+                  </div>
+                } @else if (slotsLoading()) {
+                  <div class="slot-grid">
+                    @for (s of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track s) { <span class="skeleton sk"></span> }
+                  </div>
+                } @else if (dayClosed()) {
+                  <p class="placeholder">Ese día no atendemos reservas. Elige otra fecha.</p>
+                } @else {
+                  @if (offline()) {
+                    <p class="warn">No pudimos consultar la disponibilidad en este momento. Los horarios son referenciales y te confirmaremos por WhatsApp.</p>
+                  }
+                  <div class="slot-grid">
+                    @for (s of slots(); track s.time; let i = $index) {
+                      <button type="button" class="slot" [style.--i]="i" [class.selected]="time() === s.time" [disabled]="!s.available"
+                        (click)="time.set(s.time)" [attr.aria-pressed]="time() === s.time">
+                        {{ prettyTime(s.time) }}
+                        @if (!s.available) { <small>Ocupado</small> }
+                      </button>
+                    }
+                  </div>
+                }
+                <div class="nav-row">
+                  <button type="button" class="btn btn-outline" (click)="goTo(0)"><app-icon name="arrowLeft" [size]="18" /> Atrás</button>
+                  <button type="button" class="btn btn-primary" [disabled]="!time()" (click)="goTo(2)" appRipple>Continuar <app-icon name="arrowRight" [size]="18" /></button>
+                </div>
+              </div>
+            </div>
+          }
+          @case (2) {
+            <div class="pane two-col">
+              <form class="data" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+                <h3>Tus datos de contacto</h3>
+                <div class="row">
+                  <div class="field" [class.invalid]="invalid('name')">
+                    <input id="bk-name" formControlName="name" placeholder=" " autocomplete="name" [attr.aria-invalid]="invalid('name')" aria-describedby="bk-name-e" />
+                    <label for="bk-name">Nombre completo *</label>
+                    @if (invalid('name')) { <span class="error" id="bk-name-e">{{ errorFor('name') }}</span> }
+                  </div>
+                  <div class="field" [class.invalid]="invalid('phone')">
+                    <input id="bk-phone" formControlName="phone" type="tel" placeholder=" " autocomplete="tel" inputmode="tel" [attr.aria-invalid]="invalid('phone')" aria-describedby="bk-phone-e" />
+                    <label for="bk-phone">Teléfono / WhatsApp *</label>
+                    @if (invalid('phone')) { <span class="error" id="bk-phone-e">{{ errorFor('phone') }}</span> }
+                  </div>
+                </div>
+                <div class="field" [class.invalid]="invalid('email')">
+                  <input id="bk-email" formControlName="email" type="email" placeholder=" " autocomplete="email" [attr.aria-invalid]="invalid('email')" />
+                  <label for="bk-email">Correo (opcional)</label>
+                  @if (invalid('email')) { <span class="error">{{ errorFor('email') }}</span> }
+                </div>
+                <div class="row">
+                  <div class="field grow" [class.invalid]="invalid('address')">
+                    <input id="bk-address" formControlName="address" placeholder=" " autocomplete="street-address" [attr.aria-invalid]="invalid('address')" />
+                    <label for="bk-address">Dirección del servicio *</label>
+                    @if (invalid('address')) { <span class="error">{{ errorFor('address') }}</span> }
+                  </div>
+                  <div class="field">
+                    <input id="bk-district" formControlName="district" placeholder=" " autocomplete="address-level2" />
+                    <label for="bk-district">Distrito</label>
+                  </div>
+                </div>
+                <div class="field" [class.invalid]="invalid('description')">
+                  <textarea id="bk-desc" formControlName="description" placeholder=" " maxlength="1000"></textarea>
+                  <label for="bk-desc">Cuéntanos el problema o lo que necesitas</label>
+                  <small class="count">{{ form.controls.description.value.length }}/1000</small>
+                </div>
+                <input class="honeypot" formControlName="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+                <label class="consent" [class.invalid]="invalid('privacyAccepted')">
+                  <input type="checkbox" formControlName="privacyAccepted" />
+                  <span>Acepto la <a routerLink="/privacidad" target="_blank">política de privacidad</a> y que me contacten para coordinar la visita. *</span>
+                </label>
+                @if (invalid('privacyAccepted')) { <p class="error-inline">{{ errorFor('privacyAccepted') }}</p> }
+
+                <div class="nav-row">
+                  <button type="button" class="btn btn-outline" (click)="goTo(1)"><app-icon name="arrowLeft" [size]="18" /> Atrás</button>
+                  <button type="submit" class="btn btn-accent" [disabled]="submitting()" appRipple>
+                    @if (submitting()) { <span class="spinner"></span> Reservando... } @else { Confirmar reserva <app-icon name="check" [size]="18" [stroke]="2.6" /> }
+                  </button>
+                </div>
+                @if (submitFailed()) {
+                  <div class="fallback">
+                    <p>¿Problemas para reservar? Envíanos tus datos por WhatsApp y te agendamos al instante.</p>
+                    <a class="btn btn-whatsapp btn-sm" [href]="whatsappSummary()" target="_blank" rel="noopener"><app-icon name="whatsapp" [size]="18" /> Enviar por WhatsApp</a>
+                  </div>
+                }
+              </form>
+
+              <aside class="summary" aria-label="Resumen de la reserva">
+                <h4>Resumen</h4>
+                <dl>
+                  <div><dt><app-icon name="wrench" [size]="18" /> Servicio</dt><dd>{{ serviceLabel() }}</dd></div>
+                  <div><dt><app-icon name="calendar" [size]="18" /> Fecha</dt><dd>{{ date() ? longDate(date()!) : '' }}</dd></div>
+                  <div><dt><app-icon name="clock" [size]="18" /> Hora</dt><dd>{{ time() ? prettyTime(time()!) : '' }}</dd></div>
+                </dl>
+                <p>Un asesor te escribirá para confirmar la visita y el costo antes de ir.</p>
+              </aside>
+            </div>
+          }
+          @case (3) {
+            @if (result(); as r) {
+              <div class="pane success" role="status">
+                <div class="check-anim" aria-hidden="true">
+                  <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" /><path d="m24 41 11 11 22-24" /></svg>
+                </div>
+                <h3>¡Reserva registrada!</h3>
+                <p>Te contactaremos para confirmar tu visita del <strong>{{ longDate(r.date) }}</strong> a las <strong>{{ prettyTime(r.time) }}</strong></p>
+                <button type="button" class="code" (click)="copyCode()" title="Copiar código">
+                  <small>Tu código de reserva</small>
+                  <strong>{{ r.code }}</strong>
+                  <span>Toca para copiar</span>
+                </button>
+                <div class="actions">
+                  <a class="btn btn-whatsapp" [href]="whatsappSummary()" target="_blank" rel="noopener"><app-icon name="whatsapp" [size]="20" /> Confirmar por WhatsApp</a>
+                  <button type="button" class="btn btn-outline" (click)="downloadIcs()"><app-icon name="download" [size]="18" /> Agregar a mi calendario</button>
+                  <a class="btn btn-outline" [routerLink]="['/seguimiento']" [queryParams]="{ codigo: r.code }"><app-icon name="ticket" [size]="18" /> Seguir mi reserva</a>
+                </div>
+                <button type="button" class="again" (click)="reset()">Hacer otra reserva</button>
+              </div>
+            }
+          }
+        }
+      </div>
+    </div>
+  </div>
+</section>
