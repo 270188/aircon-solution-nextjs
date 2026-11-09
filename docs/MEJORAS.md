@@ -71,7 +71,7 @@
 
 ## Pendiente (lo debe completar el negocio)
 
-- **Cifras reales**: años de experiencia, equipos atendidos, etc. en `stats` (`site.data.ts`); las actuales son de ejemplo.
+- **Cifras reales**: los 20 años de experiencia ya son reales; equipos atendidos y % de satisfacción en `stats` (`site.data.ts`) siguen siendo de ejemplo.
 - **Testimonios reales** con permiso del cliente (los actuales vienen de la versión anterior).
 - **Redes sociales**: Facebook y TikTok enlazan a una búsqueda por nombre; reemplazar por la URL exacta del perfil en `site.data.ts`.
 - **Más fotos** de trabajos en `public/images/trabajos/`.

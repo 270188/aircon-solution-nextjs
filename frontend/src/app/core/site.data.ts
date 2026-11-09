@@ -148,10 +148,14 @@ export const galleryItems: GalleryItem[] = [
   { image: 'images/trabajos/split-limpieza', caption: 'Limpieza de split de pared', category: 'mantenimiento' },
   { image: 'images/trabajos/cortina-aire', caption: 'Servicio a cortina de aire', category: 'mantenimiento' },
   { image: 'images/trabajos/condensadora-mantenimiento', caption: 'Revisión de unidad condensadora', category: 'aire', tall: true },
+  { image: 'images/trabajos/lavado-condensadora-gree', caption: 'Lavado a presión de condensadora Gree', category: 'mantenimiento', tall: true },
+  { image: 'images/trabajos/reparacion-compresor', caption: 'Reparación de equipo de ventana', category: 'aire', tall: true },
+  { image: 'images/trabajos/mantenimiento-ductos', caption: 'Mantenimiento de equipo con ductos en azotea', category: 'mantenimiento', tall: true },
+  { image: 'images/trabajos/ventilador-condensadora', caption: 'Limpieza de ventilador de condensadora', category: 'mantenimiento', tall: true },
   { image: 'images/gal_1', caption: 'Mantenimiento industrial', category: 'mantenimiento', tall: true },
   { image: 'images/gal_6', caption: 'Instalación de ductos', category: 'estructuras' },
   { image: 'images/gal_7', caption: 'Ductería metálica', category: 'estructuras' },
-  { image: 'images/gal_5', caption: 'Instalación eléctrica', category: 'electrico', tall: true },
+  { image: 'images/gal_5', caption: 'Instalación eléctrica', category: 'electrico' },
   { image: 'images/gal_2', caption: 'Reparación de motor', category: 'electrico' },
   { image: 'images/gal_3', caption: 'Limpieza de serpentín', category: 'mantenimiento' },
   { image: 'images/gal_4', caption: 'Instalación de condensadora', category: 'aire' },
@@ -171,7 +175,7 @@ export const brands: { name: string; src?: string }[] = [
 
 /** AJUSTAR: reemplaza estas cifras por las reales del negocio. */
 export const stats = [
-  { value: 10, suffix: '+', label: 'Años de experiencia' },
+  { value: 20, suffix: '+', label: 'Años de experiencia' },
   { value: 1500, suffix: '+', label: 'Equipos atendidos' },
   { value: 98, suffix: '%', label: 'Clientes satisfechos' },
   { value: 24, suffix: '/7', label: 'Atención de emergencias' },
