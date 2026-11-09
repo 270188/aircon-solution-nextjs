@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { business, navLinks, services, whatsappLink } from '../core/site.data';
 import { UiService } from '../core/ui.service';
 import { IconComponent } from '../shared/icon.component';
-import { TIKTOK_ANDROID_PACKAGE, appLink } from '../shared/app-link';
+import { FACEBOOK_ANDROID_PACKAGE, TIKTOK_ANDROID_PACKAGE, appLink } from '../shared/app-link';
 import { RevealDirective } from '../shared/reveal.directive';
 
 @Component({
@@ -27,7 +27,7 @@ import { RevealDirective } from '../shared/reveal.directive';
           <div class="social">
             <a [href]="wa" target="_blank" rel="noopener" aria-label="WhatsApp"><app-icon name="whatsapp" [size]="20" /></a>
             @if (business.facebook) {
-              <a [href]="business.facebook" target="_blank" rel="noopener" aria-label="Facebook"><app-icon name="facebook" [size]="20" /></a>
+              <a [href]="facebook.href" [attr.target]="facebook.newTab ? '_blank' : null" rel="noopener" aria-label="Facebook"><app-icon name="facebook" [size]="20" /></a>
             }
             @if (business.instagram) {
               <a [href]="business.instagram" target="_blank" rel="noopener" aria-label="Instagram"><app-icon name="instagram" [size]="20" /></a>
@@ -118,6 +118,7 @@ export class FooterComponent {
   protected readonly services = services;
   protected readonly wa = whatsappLink();
   protected readonly tiktok = appLink(business.tiktok, TIKTOK_ANDROID_PACKAGE, inject(DomSanitizer));
+  protected readonly facebook = appLink(business.facebook, FACEBOOK_ANDROID_PACKAGE, inject(DomSanitizer));
   protected readonly year = new Date().getFullYear();
   private readonly ui = inject(UiService);
   private readonly router = inject(Router);

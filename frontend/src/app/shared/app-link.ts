@@ -24,3 +24,4 @@ export function appLink(url: string, androidPackage: string, sanitizer: DomSanit
 }
 
 export const TIKTOK_ANDROID_PACKAGE = 'com.zhiliaoapp.musically';
+export const FACEBOOK_ANDROID_PACKAGE = 'com.facebook.katana';
