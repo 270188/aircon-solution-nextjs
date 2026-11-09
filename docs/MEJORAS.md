@@ -75,7 +75,6 @@
 
 - **Cifras reales**: los 20 años de experiencia ya son reales; equipos atendidos y % de satisfacción en `stats` (`site.data.ts`) siguen siendo de ejemplo.
 - **Testimonios reales** con permiso del cliente (los actuales vienen de la versión anterior).
-- **Redes sociales**: Facebook y TikTok enlazan a una búsqueda por nombre; reemplazar por la URL exacta del perfil en `site.data.ts`.
 - **Más fotos** de trabajos en `public/images/trabajos/`.
 - **Razón social**: confirmar el nombre que va en las facturas (pregunta frecuente y datos estructurados).
 - **Facturación electrónica**: crear cuenta en Nubefact y cargar `NUBEFACT_URL` y `NUBEFACT_TOKEN` en Render; mientras tanto los comprobantes quedan como borrador. Confirmar que la razón social `AIRCONSOLUTION SERVICES SAC` coincide exactamente con la de SUNAT (`INVOICE_BUSINESS_NAME`).

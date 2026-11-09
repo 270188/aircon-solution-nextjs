@@ -15,10 +15,9 @@ export const business = {
   hours: 'Lun – Sáb: 8:00 a.m. – 6:00 p.m. · Emergencias 24/7',
   mapEmbedSrc: 'https://maps.google.com/maps?q=AirconSolutionSAC,Los+Olivos,Lima&z=16&output=embed',
   mapLink: 'https://www.google.com/maps/place/?q=place_id:ChIJaWvmcgDPBZERs2kE8Nof2Sw',
-  // Para enlazar directo a las páginas, reemplaza estas búsquedas por la URL exacta de cada perfil.
-  facebook: 'https://www.facebook.com/search/top?q=AiconSolution%20SAC',
+  facebook: 'https://www.facebook.com/AirconSolutionSAC',
   instagram: 'https://www.instagram.com/airconsolutionsac/',
-  tiktok: 'https://www.tiktok.com/search/user?q=AIRCONSOLUTION%20SERVICES%20SAC',
+  tiktok: 'https://www.tiktok.com/@clever.molina.pardo',
 };
 
 export function whatsappLink(message = 'Hola AIRCONSOLUTION SERVICES SAC, quisiera información sobre sus servicios.'): string {
