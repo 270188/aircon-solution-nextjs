@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 
 import { business, navLinks, services, whatsappLink } from '../core/site.data';
 import { UiService } from '../core/ui.service';
 import { IconComponent } from '../shared/icon.component';
+import { TIKTOK_ANDROID_PACKAGE, appLink } from '../shared/app-link';
 import { RevealDirective } from '../shared/reveal.directive';
 
 @Component({
@@ -31,7 +33,7 @@ import { RevealDirective } from '../shared/reveal.directive';
               <a [href]="business.instagram" target="_blank" rel="noopener" aria-label="Instagram"><app-icon name="instagram" [size]="20" /></a>
             }
             @if (business.tiktok) {
-              <a [href]="business.tiktok" target="_blank" rel="noopener" aria-label="TikTok"><app-icon name="tiktok" [size]="20" /></a>
+              <a [href]="tiktok.href" [attr.target]="tiktok.newTab ? '_blank' : null" rel="noopener" aria-label="TikTok"><app-icon name="tiktok" [size]="20" /></a>
             }
             <a [href]="'mailto:' + business.email" aria-label="Correo"><app-icon name="mail" [size]="20" /></a>
           </div>
@@ -115,6 +117,7 @@ export class FooterComponent {
   protected readonly links = navLinks;
   protected readonly services = services;
   protected readonly wa = whatsappLink();
+  protected readonly tiktok = appLink(business.tiktok, TIKTOK_ANDROID_PACKAGE, inject(DomSanitizer));
   protected readonly year = new Date().getFullYear();
   private readonly ui = inject(UiService);
   private readonly router = inject(Router);

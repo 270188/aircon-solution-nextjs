@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 
 import { business, navLinks, whatsappLink } from '../core/site.data';
 import { UiService } from '../core/ui.service';
+import { TIKTOK_ANDROID_PACKAGE, appLink } from '../shared/app-link';
 import { IconComponent } from '../shared/icon.component';
 import { MagneticDirective } from '../shared/magnetic.directive';
 import { RippleDirective } from '../shared/ripple.directive';
@@ -22,6 +24,7 @@ export class HeaderComponent implements OnInit {
 
   protected readonly links = navLinks;
   protected readonly business = business;
+  protected readonly tiktok = appLink(business.tiktok, TIKTOK_ANDROID_PACKAGE, inject(DomSanitizer));
   protected readonly wa = whatsappLink();
   protected readonly scrolled = signal(false);
   protected readonly hidden = signal(false);
