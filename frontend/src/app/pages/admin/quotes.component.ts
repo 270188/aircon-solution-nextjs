@@ -57,7 +57,8 @@ export class QuotesComponent implements OnInit {
   protected validDays = 15;
   protected notes = '';
   protected bookingId: number | null = null;
-  protected readonly includesIgv = signal(true);
+  /** Por defecto los precios se escriben sin IGV y el sistema suma el 18 %. */
+  protected readonly includesIgv = signal(false);
   protected readonly items = signal<ItemRow[]>([{ description: '', quantity: 1, unitPrice: 0 }]);
 
   protected readonly totals = computed(() => {
@@ -108,7 +109,7 @@ export class QuotesComponent implements OnInit {
     this.customerEmail = this.customerAddress = this.notes = '';
     this.validDays = 15;
     this.bookingId = null;
-    this.includesIgv.set(true);
+    this.includesIgv.set(false);
     this.items.set([{ description: '', quantity: 1, unitPrice: 0 }]);
     this.formError.set('');
   }

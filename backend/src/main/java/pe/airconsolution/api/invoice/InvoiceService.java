@@ -80,8 +80,9 @@ public class InvoiceService {
         BigDecimal igv = BigDecimal.ZERO;
         BigDecimal total = BigDecimal.ZERO;
         int line = 1;
+        boolean includesIgv = Boolean.TRUE.equals(req.pricesIncludeIgv());
         for (ItemRequest r : req.items()) {
-            InvoiceItem it = computeItem(r);
+            InvoiceItem it = computeItem(r, includesIgv);
             it.setLineNo(line++);
             inv.addItem(it);
             subtotal = subtotal.add(it.getSubtotal());
@@ -150,16 +151,31 @@ public class InvoiceService {
         return toResponse(inv);
     }
 
-    static InvoiceItem computeItem(ItemRequest r) {
-        Igv.Line line = Igv.split(r.quantity(), r.unitPrice());
+    /**
+     * Calcula una línea. Con precios sin IGV el valor unitario es el precio ingresado y se suma el 18 %;
+     * con precios con IGV el valor unitario se obtiene dividiendo entre 1.18.
+     */
+    static InvoiceItem computeItem(ItemRequest r, boolean pricesIncludeIgv) {
         InvoiceItem it = new InvoiceItem();
         it.setDescription(r.description().trim());
-        it.setQuantity(line.quantity());
-        it.setUnitPrice(line.unitPrice());
-        it.setUnitValue(line.unitValue());
-        it.setSubtotal(line.subtotal());
-        it.setIgv(line.igv());
-        it.setTotal(line.total());
+        if (pricesIncludeIgv) {
+            Igv.Line line = Igv.split(r.quantity(), r.unitPrice());
+            it.setQuantity(line.quantity());
+            it.setUnitPrice(line.unitPrice());
+            it.setUnitValue(line.unitValue());
+            it.setSubtotal(line.subtotal());
+            it.setIgv(line.igv());
+            it.setTotal(line.total());
+        } else {
+            Igv.Line line = Igv.addTo(r.quantity(), r.unitPrice());
+            it.setQuantity(line.quantity());
+            it.setUnitValue(line.unitValue().setScale(6, java.math.RoundingMode.HALF_UP));
+            // precio_unitario (con IGV) que exige SUNAT para la línea
+            it.setUnitPrice(line.unitValue().multiply(BigDecimal.ONE.add(Igv.RATE)).setScale(2, java.math.RoundingMode.HALF_UP));
+            it.setSubtotal(line.subtotal());
+            it.setIgv(line.igv());
+            it.setTotal(line.total());
+        }
         return it;
     }
 

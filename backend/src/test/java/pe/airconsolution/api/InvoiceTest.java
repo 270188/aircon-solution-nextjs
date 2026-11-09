@@ -48,7 +48,7 @@ class InvoiceTest {
     void issuesFacturaWithIgvAndConsecutiveNumbers() throws Exception {
         String body = """
                 {"type":"FACTURA","customerDocType":"6","customerDocNumber":"20616633733",
-                 "customerName":"CLIENTE DE PRUEBA SAC","customerAddress":"Av. Perú 123, Lima",
+                 "customerName":"CLIENTE DE PRUEBA SAC","customerAddress":"Av. Perú 123, Lima","pricesIncludeIgv":true,
                  "items":[{"description":"Mantenimiento preventivo split 12000 BTU","quantity":2,"unitPrice":118}]}""";
         mvc.perform(post("/api/v1/admin/invoices").with(httpBasic("admin", "test-secret"))
                         .contentType(MediaType.APPLICATION_JSON).content(body))
@@ -67,6 +67,23 @@ class InvoiceTest {
         mvc.perform(get("/api/v1/admin/invoices").with(httpBasic("admin", "test-secret")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].fullNumber", is(org.hamcrest.Matchers.startsWith("F001-"))));
+    }
+
+    @Test
+    void addsIgvToPricesWithoutIgvByDefault() throws Exception {
+        mvc.perform(post("/api/v1/admin/invoices").with(httpBasic("admin", "test-secret"))
+                        .contentType(MediaType.APPLICATION_JSON).content("""
+                                {"type":"FACTURA","customerDocType":"6","customerDocNumber":"20616633733",
+                                 "customerName":"CLIENTE SIN IGV SAC","customerAddress":"Lima",
+                                 "items":[{"description":"Instalación","quantity":2,"unitPrice":100},
+                                          {"description":"Materiales","quantity":1,"unitPrice":55.50}]}"""))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.subtotal").value(255.50))
+                .andExpect(jsonPath("$.igv").value(45.99))
+                .andExpect(jsonPath("$.total").value(301.49))
+                .andExpect(jsonPath("$.items[0].unitValue").value(100.0))
+                .andExpect(jsonPath("$.items[0].unitPrice").value(118.00))
+                .andExpect(jsonPath("$.items[0].subtotal").value(200.00));
     }
 
     @Test

@@ -31,7 +31,7 @@ public final class QuoteDtos {
             Long bookingId,
             @Min(value = 1, message = "La validez mínima es 1 día.") @Max(value = 90, message = "La validez máxima es 90 días.")
             Integer validDays,
-            /** true (por defecto): precios con IGV incluido; false: se suma el 18 % al precio. */
+            /** false (por defecto): precios sin IGV, se suma el 18 %; true: los precios ya incluyen IGV. */
             Boolean pricesIncludeIgv,
             @Size(max = 1500) String notes,
             @NotEmpty(message = "Agrega al menos un ítem.") @Size(max = 50) List<@Valid ItemRequest> items) {

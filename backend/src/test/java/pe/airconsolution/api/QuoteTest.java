@@ -37,7 +37,7 @@ class QuoteTest {
                         .contentType(MediaType.APPLICATION_JSON).content("""
                                 {"customerName":"Restaurante El Sabor SAC","customerDoc":"20616633733",
                                  "customerContact":"Sr. Pérez","customerPhone":"985899731","customerEmail":"compras@sabor.pe",
-                                 "customerAddress":"Av. Brasil 450, Jesús María","validDays":10,
+                                 "customerAddress":"Av. Brasil 450, Jesús María","validDays":10,"pricesIncludeIgv":true,
                                  "items":[{"description":"Mantenimiento preventivo de split 18000 BTU","quantity":3,"unitPrice":150},
                                           {"description":"Recarga de gas R410A","quantity":1,"unitPrice":180.5}]}"""))
                 .andExpect(status().isCreated())

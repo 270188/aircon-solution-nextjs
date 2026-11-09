@@ -54,6 +54,8 @@ public final class InvoiceDtos {
             LocalDate issueDate,
             @Size(max = 500)
             String observations,
+            /** false (por defecto): precios sin IGV, se suma el 18 %; true: los precios ya incluyen IGV. */
+            Boolean pricesIncludeIgv,
             @NotEmpty(message = "Agrega al menos un ítem.")
             @Size(max = 50)
             List<@Valid ItemRequest> items) {

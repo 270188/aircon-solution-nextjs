@@ -19,7 +19,7 @@ import {
 import { business } from '../../core/site.data';
 import { UiService } from '../../core/ui.service';
 import { IconComponent } from '../../shared/icon.component';
-import { isValidDni, isValidRuc, lineTotals } from '../../shared/peru';
+import { isValidDni, isValidRuc, lineTotals, lineTotalsPlusIgv } from '../../shared/peru';
 
 interface ItemRow {
   description: string;
@@ -77,12 +77,14 @@ export class InvoicingComponent implements OnInit {
   protected observations = '';
   protected bookingId: number | null = null;
   protected readonly items = signal<ItemRow[]>([{ description: '', quantity: 1, unitPrice: 0 }]);
+  /** Por defecto los precios se escriben sin IGV y el sistema suma el 18 %. */
+  protected readonly includesIgv = signal(false);
   protected readonly formError = signal('');
 
   protected readonly totals = computed(() =>
     this.items().reduce(
       (acc, it) => {
-        const t = lineTotals(Number(it.quantity) || 0, Number(it.unitPrice) || 0);
+        const t = this.line(it);
         return { subtotal: acc.subtotal + t.subtotal, igv: acc.igv + t.igv, total: acc.total + t.total };
       },
       { subtotal: 0, igv: 0, total: 0 },
@@ -138,14 +140,9 @@ export class InvoicingComponent implements OnInit {
     this.customerAddress = q.customerAddress ?? '';
     this.customerEmail = q.customerEmail ?? '';
     this.observations = `Según cotización ${q.code}`;
-    // Las facturas usan precios con IGV incluido.
-    this.items.set(
-      q.items.map((it) => ({
-        description: it.description,
-        quantity: it.quantity,
-        unitPrice: q.pricesIncludeIgv ? it.unitPrice : Math.round(it.unitPrice * 118) / 100,
-      })),
-    );
+    // Se respeta cómo se cotizó: con o sin IGV.
+    this.includesIgv.set(q.pricesIncludeIgv);
+    this.items.set(q.items.map((it) => ({ description: it.description, quantity: it.quantity, unitPrice: it.unitPrice })));
     this.formOpen.set(true);
   }
 
@@ -158,6 +155,7 @@ export class InvoicingComponent implements OnInit {
     this.customerEmail = '';
     this.observations = '';
     this.bookingId = null;
+    this.includesIgv.set(false);
     this.items.set([{ description: '', quantity: 1, unitPrice: 0 }]);
     this.formError.set('');
   }
@@ -190,8 +188,16 @@ export class InvoicingComponent implements OnInit {
     );
   }
 
+  private line(it: ItemRow): { subtotal: number; igv: number; total: number } {
+    const q = Number(it.quantity) || 0;
+    const p = Number(it.unitPrice) || 0;
+    return this.includesIgv() ? lineTotals(q, p) : lineTotalsPlusIgv(q, p);
+  }
+
+  /** Importe de la línea tal como se muestra: con IGV si los precios lo incluyen, sin IGV si no. */
   protected lineTotal(it: ItemRow): number {
-    return lineTotals(Number(it.quantity) || 0, Number(it.unitPrice) || 0).total;
+    const t = this.line(it);
+    return this.includesIgv() ? t.total : t.subtotal;
   }
 
   protected submit(): void {
@@ -207,6 +213,7 @@ export class InvoicingComponent implements OnInit {
       customerEmail: this.customerEmail.trim() || null,
       bookingId: this.bookingId,
       observations: this.observations.trim() || null,
+      pricesIncludeIgv: this.includesIgv(),
       items: this.items().map((it) => ({ description: it.description.trim(), quantity: Number(it.quantity), unitPrice: Number(it.unitPrice) })),
     };
     this.saving.set(true);

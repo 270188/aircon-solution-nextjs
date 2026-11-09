@@ -108,13 +108,17 @@
       </fieldset>
 
       <fieldset>
-        <legend>Detalle (precios con IGV incluido)</legend>
+        <legend>Detalle</legend>
+        <div class="toggle" role="radiogroup" aria-label="Cálculo del IGV">
+          <button type="button" role="radio" [attr.aria-checked]="!includesIgv()" [class.on]="!includesIgv()" (click)="includesIgv.set(false)">Precios sin IGV (+18 %)</button>
+          <button type="button" role="radio" [attr.aria-checked]="includesIgv()" [class.on]="includesIgv()" (click)="includesIgv.set(true)">Precios con IGV</button>
+        </div>
         <div class="items">
           @for (it of items(); track $index; let i = $index) {
             <div class="item-row">
               <input class="desc" [name]="'d' + i" [ngModel]="it.description" (ngModelChange)="updateItem(i, 'description', $event)" placeholder="Descripción del servicio" maxlength="250" aria-label="Descripción" />
               <input class="qty" [name]="'q' + i" type="number" min="0.01" step="0.01" [ngModel]="it.quantity" (ngModelChange)="updateItem(i, 'quantity', $event)" aria-label="Cantidad" />
-              <input class="price" [name]="'p' + i" type="number" min="0.01" step="0.01" [ngModel]="it.unitPrice" (ngModelChange)="updateItem(i, 'unitPrice', $event)" aria-label="Precio unitario con IGV" />
+              <input class="price" [name]="'p' + i" type="number" min="0.01" step="0.01" [ngModel]="it.unitPrice" (ngModelChange)="updateItem(i, 'unitPrice', $event)" [attr.aria-label]="includesIgv() ? 'Precio unitario con IGV' : 'Valor unitario sin IGV'" />
               <span class="line-total">S/ {{ lineTotal(it) | number: '1.2-2' }}</span>
               <button type="button" class="x" (click)="removeItem(i)" [disabled]="items().length === 1" aria-label="Quitar ítem"><app-icon name="close" [size]="16" /></button>
             </div>
@@ -197,15 +201,15 @@
         </section>
 
         <table class="p-items">
-          <thead><tr><th>Cant.</th><th>Unidad</th><th>Descripción</th><th class="num">P. unit.</th><th class="num">Importe</th></tr></thead>
+          <thead><tr><th>Cant.</th><th>Unidad</th><th>Descripción</th><th class="num">V. unit. (sin IGV)</th><th class="num">Valor venta</th></tr></thead>
           <tbody>
             @for (it of inv.items; track it.lineNo) {
               <tr>
                 <td>{{ it.quantity | number: '1.0-2' }}</td>
                 <td>Servicio</td>
                 <td>{{ it.description }}</td>
-                <td class="num">{{ it.unitPrice | number: '1.2-2' }}</td>
-                <td class="num">{{ it.total | number: '1.2-2' }}</td>
+                <td class="num">{{ it.unitValue | number: '1.2-2' }}</td>
+                <td class="num">{{ it.subtotal | number: '1.2-2' }}</td>
               </tr>
             }
           </tbody>

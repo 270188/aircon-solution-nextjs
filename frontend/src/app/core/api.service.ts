@@ -119,6 +119,7 @@ export interface InvoiceRequest {
   customerEmail: string | null;
   bookingId: number | null;
   observations: string | null;
+  pricesIncludeIgv: boolean;
   items: InvoiceItemInput[];
 }
 

@@ -61,8 +61,8 @@
       <fieldset>
         <legend>Detalle</legend>
         <div class="toggle" role="radiogroup" aria-label="Cálculo del IGV">
-          <button type="button" role="radio" [attr.aria-checked]="includesIgv()" [class.on]="includesIgv()" (click)="includesIgv.set(true)">Precios con IGV</button>
           <button type="button" role="radio" [attr.aria-checked]="!includesIgv()" [class.on]="!includesIgv()" (click)="includesIgv.set(false)">Precios sin IGV (+18 %)</button>
+          <button type="button" role="radio" [attr.aria-checked]="includesIgv()" [class.on]="includesIgv()" (click)="includesIgv.set(true)">Precios con IGV</button>
         </div>
         <div class="items">
           @for (it of items(); track $index; let i = $index) {

@@ -66,7 +66,7 @@ public class QuoteService {
         q.setCustomerEmail(blankToNull(req.customerEmail()));
         q.setCustomerAddress(blankToNull(req.customerAddress()));
         q.setBookingId(req.bookingId());
-        boolean includesIgv = req.pricesIncludeIgv() == null || req.pricesIncludeIgv();
+        boolean includesIgv = Boolean.TRUE.equals(req.pricesIncludeIgv());
         q.setPricesIncludeIgv(includesIgv);
         String igvNote = includesIgv ? "• Los precios incluyen IGV.\n" : "• Los precios unitarios no incluyen IGV; el 18 % se suma al total.\n";
         q.setNotes(req.notes() == null || req.notes().isBlank() ? igvNote + DEFAULT_NOTES : req.notes().trim());
