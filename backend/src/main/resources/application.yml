@@ -51,3 +51,15 @@ app:
     closed-days: SUNDAY
   rate-limit:
     requests-per-minute: ${RATE_LIMIT_PER_MINUTE:10}
+  invoicing:
+    ruc: ${INVOICE_RUC:20616633733}
+    business-name: ${INVOICE_BUSINESS_NAME:AIRCONSOLUTION SERVICES SAC}
+    address: ${INVOICE_ADDRESS:Calle 20 Mz. 28 Lt. 17 A.H. Laura Caller, Los Olivos, Lima}
+    series-factura: ${INVOICE_SERIES_FACTURA:F001}
+    series-boleta: ${INVOICE_SERIES_BOLETA:B001}
+    # Si ya emitiste comprobantes con estas series en otro sistema, indica aquí el siguiente número.
+    first-number-factura: ${INVOICE_FIRST_NUMBER_FACTURA:1}
+    first-number-boleta: ${INVOICE_FIRST_NUMBER_BOLETA:1}
+    # Ruta y token que entrega Nubefact. Si están vacíos, los comprobantes quedan como borrador.
+    nubefact-url: ${NUBEFACT_URL:}
+    nubefact-token: ${NUBEFACT_TOKEN:}

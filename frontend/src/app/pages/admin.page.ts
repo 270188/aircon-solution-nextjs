@@ -17,13 +17,14 @@ import { UiService } from '../core/ui.service';
 import { longDate, prettyTime } from '../shared/dates';
 import { IconComponent } from '../shared/icon.component';
 import { CountUpDirective } from '../shared/count-up.directive';
+import { InvoicingComponent } from './admin/invoicing.component';
 
 const SESSION_KEY = 'acs-admin';
 
 /** Panel interno: reservas, mensajes y suscriptores. Protegido por usuario y contraseña en el backend. */
 @Component({
   selector: 'app-admin-page',
-  imports: [FormsModule, DatePipe, IconComponent, CountUpDirective],
+  imports: [FormsModule, DatePipe, IconComponent, CountUpDirective, InvoicingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './page-shell.scss',
   templateUrl: './admin.page.html',
@@ -82,7 +83,9 @@ export class AdminPage implements OnInit {
   protected readonly auth = signal<string | null>(null);
   protected readonly loggingIn = signal(false);
 
-  protected readonly tab = signal<'reservas' | 'mensajes' | 'suscriptores'>('reservas');
+  protected readonly tab = signal<'reservas' | 'mensajes' | 'suscriptores' | 'facturacion'>('reservas');
+  /** Reserva a facturar: abre la pestaña de facturación con el formulario prellenado. */
+  protected readonly billing = signal<AdminBooking | null>(null);
   protected readonly stats = signal<AdminStats | null>(null);
   protected readonly filter = signal<BookingStatus | ''>('');
   protected readonly bookings = signal<Page<AdminBooking> | null>(null);
@@ -166,6 +169,11 @@ export class AdminPage implements OnInit {
       },
       error: (e) => this.handle(e),
     });
+  }
+
+  protected bill(b: AdminBooking): void {
+    this.billing.set({ ...b });
+    this.tab.set('facturacion');
   }
 
   protected loadMessages(page: number): void {

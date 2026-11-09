@@ -1,0 +1,231 @@
+@if (settings(); as s) {
+  @if (!s.electronicEnabled) {
+    <div class="notice">
+      <app-icon name="bolt" [size]="20" />
+      <p>
+        <strong>Modo borrador.</strong> Los comprobantes se numeran y calculan correctamente, pero
+        <strong>todavía no se envían a SUNAT</strong> y no tienen validez tributaria. Para emitirlos de forma
+        electrónica, conecta tu cuenta de Nubefact (variables <code>NUBEFACT_URL</code> y <code>NUBEFACT_TOKEN</code> en Render).
+      </p>
+    </div>
+  }
+}
+
+<div class="head">
+  <div>
+    <h2>Comprobantes</h2>
+    @if (settings(); as s) {
+      <p class="muted">{{ s.issuer.businessName }} · RUC {{ s.issuer.ruc }} · Series {{ s.seriesFactura }} / {{ s.seriesBoleta }}</p>
+    }
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="openForm()"><app-icon name="ticket" [size]="16" /> Nuevo comprobante</button>
+</div>
+
+@if (list(); as p) {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Número</th><th>Fecha</th><th>Cliente</th><th class="num">Total</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (s of p.items; track s.id) {
+          <tr>
+            <td><strong>{{ s.fullNumber }}</strong><small>{{ s.type === 'FACTURA' ? 'Factura' : 'Boleta' }}</small></td>
+            <td>{{ s.issueDate | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ s.customerName }}@if (s.customerDocNumber) {<small>{{ s.customerDocNumber }}</small>}</td>
+            <td class="num">S/ {{ s.total | number: '1.2-2' }}</td>
+            <td><span class="pill" [class]="'pill ' + s.status">{{ statusLabel[s.status] }}</span></td>
+            <td class="actions">
+              <button type="button" class="link" (click)="open(s)">Ver</button>
+              @if (canSend(s)) {
+                <button type="button" class="link" [disabled]="busyId() === s.id" (click)="send(s.id)">Enviar a SUNAT</button>
+              }
+              @if (s.pdfUrl) {
+                <a class="link" [href]="s.pdfUrl" target="_blank" rel="noopener">PDF</a>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6" class="empty">Aún no hay comprobantes. Crea el primero con “Nuevo comprobante”.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (p.totalPages > 1) {
+    <div class="pager">
+      <button class="btn btn-outline btn-sm" type="button" [disabled]="p.page === 0" (click)="load(p.page - 1)">Anterior</button>
+      <span>{{ p.page + 1 }} / {{ p.totalPages }}</span>
+      <button class="btn btn-outline btn-sm" type="button" [disabled]="p.page + 1 >= p.totalPages" (click)="load(p.page + 1)">Siguiente</button>
+    </div>
+  }
+}
+
+<!-- ===== Formulario de nuevo comprobante ===== -->
+@if (formOpen()) {
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="inv-form-title" (click)="formOpen.set(false)">
+    <form class="sheet card" (click)="$event.stopPropagation()" (ngSubmit)="submit()">
+      <div class="sheet-head">
+        <h3 id="inv-form-title">Nuevo comprobante</h3>
+        <button type="button" class="x" (click)="formOpen.set(false)" aria-label="Cerrar"><app-icon name="close" /></button>
+      </div>
+
+      <div class="toggle" role="radiogroup" aria-label="Tipo de comprobante">
+        <button type="button" role="radio" [attr.aria-checked]="type() === 'BOLETA'" [class.on]="type() === 'BOLETA'" (click)="setType('BOLETA')">Boleta</button>
+        <button type="button" role="radio" [attr.aria-checked]="type() === 'FACTURA'" [class.on]="type() === 'FACTURA'" (click)="setType('FACTURA')">Factura</button>
+      </div>
+
+      <fieldset>
+        <legend>Cliente</legend>
+        <div class="grid2">
+          <label class="lbl">Tipo de documento
+            <select name="docType" [ngModel]="docType()" (ngModelChange)="docType.set($event)" [disabled]="type() === 'FACTURA'">
+              <option value="6">RUC</option>
+              @if (type() === 'BOLETA') {
+                <option value="1">DNI</option>
+                <option value="4">Carné de extranjería</option>
+                <option value="-">Sin documento (menos de S/ 700)</option>
+              }
+            </select>
+          </label>
+          @if (docType() !== '-') {
+            <label class="lbl">Número
+              <input name="docNumber" [(ngModel)]="docNumber" inputmode="numeric" [maxlength]="docType() === '6' ? 11 : 12" autocomplete="off" />
+              <span class="hint" [class.ok]="docHint().startsWith('✓')">{{ docHint() }}</span>
+            </label>
+          }
+        </div>
+        <label class="lbl">{{ type() === 'FACTURA' ? 'Razón social' : 'Nombre completo' }}
+          <input name="customerName" [(ngModel)]="customerName" maxlength="200" />
+        </label>
+        <div class="grid2">
+          <label class="lbl">Dirección {{ type() === 'FACTURA' ? 'fiscal' : '(opcional)' }}
+            <input name="customerAddress" [(ngModel)]="customerAddress" maxlength="250" />
+          </label>
+          <label class="lbl">Correo (opcional)
+            <input name="customerEmail" type="email" [(ngModel)]="customerEmail" maxlength="160" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Detalle (precios con IGV incluido)</legend>
+        <div class="items">
+          @for (it of items(); track $index; let i = $index) {
+            <div class="item-row">
+              <input class="desc" [name]="'d' + i" [ngModel]="it.description" (ngModelChange)="updateItem(i, 'description', $event)" placeholder="Descripción del servicio" maxlength="250" aria-label="Descripción" />
+              <input class="qty" [name]="'q' + i" type="number" min="0.01" step="0.01" [ngModel]="it.quantity" (ngModelChange)="updateItem(i, 'quantity', $event)" aria-label="Cantidad" />
+              <input class="price" [name]="'p' + i" type="number" min="0.01" step="0.01" [ngModel]="it.unitPrice" (ngModelChange)="updateItem(i, 'unitPrice', $event)" aria-label="Precio unitario con IGV" />
+              <span class="line-total">S/ {{ lineTotal(it) | number: '1.2-2' }}</span>
+              <button type="button" class="x" (click)="removeItem(i)" [disabled]="items().length === 1" aria-label="Quitar ítem"><app-icon name="close" [size]="16" /></button>
+            </div>
+          }
+          <button type="button" class="link add" (click)="addItem()">+ Agregar ítem</button>
+        </div>
+        <dl class="sums">
+          <div><dt>Op. gravada</dt><dd>S/ {{ totals().subtotal | number: '1.2-2' }}</dd></div>
+          <div><dt>IGV (18 %)</dt><dd>S/ {{ totals().igv | number: '1.2-2' }}</dd></div>
+          <div class="grand"><dt>Total</dt><dd>S/ {{ totals().total | number: '1.2-2' }}</dd></div>
+        </dl>
+      </fieldset>
+
+      <label class="lbl">Observaciones (opcional)
+        <input name="observations" [(ngModel)]="observations" maxlength="500" />
+      </label>
+
+      @if (formError()) { <p class="form-error" role="alert">{{ formError() }}</p> }
+
+      <div class="sheet-foot">
+        <button type="button" class="btn btn-outline btn-sm" (click)="formOpen.set(false)">Cancelar</button>
+        <button type="submit" class="btn btn-accent btn-sm" [disabled]="saving()">
+          @if (saving()) { <span class="spinner"></span> Emitiendo... } @else {
+            {{ settings()?.electronicEnabled ? 'Emitir y enviar a SUNAT' : 'Guardar borrador' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+}
+
+<!-- ===== Vista / impresión del comprobante ===== -->
+@if (view(); as inv) {
+  <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="inv.title + ' ' + inv.fullNumber" (click)="view.set(null)">
+    <div class="viewer" (click)="$event.stopPropagation()">
+      <div class="viewer-bar">
+        <span class="pill" [class]="'pill ' + inv.status">{{ statusLabel[inv.status] }}</span>
+        <div class="bar-actions">
+          @if (inv.pdfUrl) {
+            <a class="btn btn-outline btn-sm" [href]="inv.pdfUrl" target="_blank" rel="noopener"><app-icon name="download" [size]="16" /> PDF oficial</a>
+          }
+          @if (canSend(inv)) {
+            <button class="btn btn-primary btn-sm" type="button" [disabled]="busyId() === inv.id" (click)="send(inv.id)">Enviar a SUNAT</button>
+          }
+          <button class="btn btn-outline btn-sm" type="button" (click)="print()"><app-icon name="download" [size]="16" /> Imprimir / PDF</button>
+          @if (inv.status !== 'ANULADA') {
+            <button class="btn btn-outline btn-sm danger" type="button" [disabled]="busyId() === inv.id" (click)="voidInvoice(inv.id)">Anular</button>
+          }
+          <button type="button" class="x" (click)="view.set(null)" aria-label="Cerrar"><app-icon name="close" /></button>
+        </div>
+      </div>
+      @if (inv.sunatDescription) { <p class="sunat">{{ inv.sunatDescription }}</p> }
+
+      <article class="paper invoice-print">
+        @if (inv.status === 'BORRADOR' || inv.status === 'ANULADA') {
+          <div class="watermark">{{ inv.status === 'ANULADA' ? 'ANULADO' : 'BORRADOR – NO VÁLIDO ANTE SUNAT' }}</div>
+        }
+        <header class="p-head">
+          <div class="issuer">
+            <img [src]="logo" alt="" width="64" height="64" />
+            <div>
+              <strong>{{ inv.issuer.businessName }}</strong>
+              <span>{{ inv.issuer.address }}</span>
+              <span>Tel. {{ phone }} · {{ email }}</span>
+            </div>
+          </div>
+          <div class="box">
+            <span>R.U.C. {{ inv.issuer.ruc }}</span>
+            <strong>{{ inv.title }}</strong>
+            <span>{{ inv.fullNumber }}</span>
+          </div>
+        </header>
+
+        <section class="p-client">
+          <div><span>Fecha de emisión:</span> {{ inv.issueDate | date: 'dd/MM/yyyy' }}</div>
+          <div><span>Moneda:</span> Soles (PEN)</div>
+          <div><span>{{ inv.type === 'FACTURA' ? 'Razón social' : 'Cliente' }}:</span> {{ inv.customerName }}</div>
+          <div><span>{{ docLabel(inv.customerDocType) }}:</span> {{ inv.customerDocNumber ?? '-' }}</div>
+          @if (inv.customerAddress) { <div class="wide"><span>Dirección:</span> {{ inv.customerAddress }}</div> }
+        </section>
+
+        <table class="p-items">
+          <thead><tr><th>Cant.</th><th>Unidad</th><th>Descripción</th><th class="num">P. unit.</th><th class="num">Importe</th></tr></thead>
+          <tbody>
+            @for (it of inv.items; track it.lineNo) {
+              <tr>
+                <td>{{ it.quantity | number: '1.0-2' }}</td>
+                <td>Servicio</td>
+                <td>{{ it.description }}</td>
+                <td class="num">{{ it.unitPrice | number: '1.2-2' }}</td>
+                <td class="num">{{ it.total | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="p-foot">
+          <div class="words">
+            <p>{{ inv.totalInWords }}</p>
+            @if (inv.observations) { <p class="obs">Obs.: {{ inv.observations }}</p> }
+            @if (inv.hash) { <p class="obs">Código hash: {{ inv.hash }}</p> }
+            <p class="legal">Representación impresa de la {{ inv.title | lowercase }}.
+              @if (inv.status === 'ACEPTADA') { Consulte su validez en www.sunat.gob.pe }</p>
+          </div>
+          <dl>
+            <div><dt>Op. gravada</dt><dd>S/ {{ inv.subtotal | number: '1.2-2' }}</dd></div>
+            <div><dt>IGV 18 %</dt><dd>S/ {{ inv.igv | number: '1.2-2' }}</dd></div>
+            <div class="grand"><dt>Importe total</dt><dd>S/ {{ inv.total | number: '1.2-2' }}</dd></div>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </div>
+}

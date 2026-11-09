@@ -101,6 +101,86 @@ export interface AdminStats {
   subscribers: number;
 }
 
+export type InvoiceType = 'FACTURA' | 'BOLETA';
+export type InvoiceStatus = 'BORRADOR' | 'ACEPTADA' | 'RECHAZADA' | 'ERROR_ENVIO' | 'ANULADA';
+
+export interface InvoiceItemInput {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface InvoiceRequest {
+  type: InvoiceType;
+  customerDocType: '6' | '1' | '4' | '-';
+  customerDocNumber: string | null;
+  customerName: string;
+  customerAddress: string | null;
+  customerEmail: string | null;
+  bookingId: number | null;
+  observations: string | null;
+  items: InvoiceItemInput[];
+}
+
+export interface InvoiceItem {
+  lineNo: number;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  unitValue: number;
+  subtotal: number;
+  igv: number;
+  total: number;
+}
+
+export interface Invoice {
+  id: number;
+  type: InvoiceType;
+  title: string;
+  series: string;
+  number: number;
+  fullNumber: string;
+  issueDate: string;
+  currency: string;
+  customerDocType: string;
+  customerDocNumber: string | null;
+  customerName: string;
+  customerAddress: string | null;
+  customerEmail: string | null;
+  bookingId: number | null;
+  subtotal: number;
+  igv: number;
+  total: number;
+  totalInWords: string;
+  status: InvoiceStatus;
+  observations: string | null;
+  sunatDescription: string | null;
+  pdfUrl: string | null;
+  hash: string | null;
+  createdAt: string;
+  issuer: { ruc: string; businessName: string; address: string };
+  items: InvoiceItem[];
+}
+
+export interface InvoiceSummary {
+  id: number;
+  type: InvoiceType;
+  fullNumber: string;
+  issueDate: string;
+  customerDocNumber: string | null;
+  customerName: string;
+  total: number;
+  status: InvoiceStatus;
+  pdfUrl: string | null;
+}
+
+export interface InvoicingSettings {
+  issuer: { ruc: string; businessName: string; address: string };
+  seriesFactura: string;
+  seriesBoleta: string;
+  electronicEnabled: boolean;
+}
+
 /** Las llamadas van a /api/... ; en desarrollo un proxy y en Vercel un rewrite las envían a Spring Boot. */
 const API = '/api/v1';
 
@@ -168,6 +248,35 @@ export class ApiService {
       headers: this.authHeaders(auth),
       params: { size: '200' },
     });
+  }
+
+  // ---- Facturación ----
+
+  invoicingSettings(auth: string): Observable<InvoicingSettings> {
+    return this.http.get<InvoicingSettings>(`${API}/admin/invoices/settings`, { headers: this.authHeaders(auth) });
+  }
+
+  invoices(auth: string, page: number): Observable<Page<InvoiceSummary>> {
+    return this.http.get<Page<InvoiceSummary>>(`${API}/admin/invoices`, {
+      headers: this.authHeaders(auth),
+      params: { page: String(page), size: '15' },
+    });
+  }
+
+  invoice(auth: string, id: number): Observable<Invoice> {
+    return this.http.get<Invoice>(`${API}/admin/invoices/${id}`, { headers: this.authHeaders(auth) });
+  }
+
+  createInvoice(auth: string, body: InvoiceRequest): Observable<Invoice> {
+    return this.http.post<Invoice>(`${API}/admin/invoices`, body, { headers: this.authHeaders(auth) });
+  }
+
+  sendInvoice(auth: string, id: number): Observable<Invoice> {
+    return this.http.post<Invoice>(`${API}/admin/invoices/${id}/send`, {}, { headers: this.authHeaders(auth) });
+  }
+
+  voidInvoice(auth: string, id: number, reason: string): Observable<Invoice> {
+    return this.http.post<Invoice>(`${API}/admin/invoices/${id}/void`, { reason }, { headers: this.authHeaders(auth) });
   }
 
   private authHeaders(auth: string): HttpHeaders {

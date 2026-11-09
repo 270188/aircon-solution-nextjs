@@ -17,7 +17,8 @@ public record AppProperties(
         Cors cors,
         Admin admin,
         Booking booking,
-        RateLimit rateLimit) {
+        RateLimit rateLimit,
+        Invoicing invoicing) {
 
     public record Cors(List<String> allowedOrigins) {
     }
@@ -34,5 +35,22 @@ public record AppProperties(
     }
 
     public record RateLimit(int requestsPerMinute) {
+    }
+
+    /** Datos del emisor de comprobantes y del proveedor de facturación electrónica (Nubefact). */
+    public record Invoicing(
+            String ruc,
+            String businessName,
+            String address,
+            String seriesFactura,
+            String seriesBoleta,
+            int firstNumberFactura,
+            int firstNumberBoleta,
+            String nubefactUrl,
+            String nubefactToken) {
+
+        public boolean electronicEnabled() {
+            return nubefactUrl != null && !nubefactUrl.isBlank() && nubefactToken != null && !nubefactToken.isBlank();
+        }
     }
 }

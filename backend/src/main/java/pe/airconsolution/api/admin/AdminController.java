@@ -71,7 +71,7 @@ public class AdminController {
 
     public record PageResponse<T>(java.util.List<T> items, int page, int size, long total, int totalPages) {
 
-        static <T> PageResponse<T> of(Page<T> p) {
+        public static <T> PageResponse<T> of(Page<T> p) {
             return new PageResponse<>(p.getContent(), p.getNumber(), p.getSize(), p.getTotalElements(),
                     p.getTotalPages());
         }

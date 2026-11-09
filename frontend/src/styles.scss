@@ -629,3 +629,24 @@ section {
     }
   }
 }
+
+/* Impresión de comprobantes desde el panel: solo se imprime la hoja */
+@media print {
+  body.printing-invoice {
+    background: #fff;
+    * {
+      visibility: hidden;
+    }
+    .invoice-print,
+    .invoice-print * {
+      visibility: visible;
+    }
+    .invoice-print {
+      position: fixed;
+      inset: 0;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 10mm;
+    }
+  }
+}

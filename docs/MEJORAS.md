@@ -32,6 +32,7 @@
 | RF-09 | Exportar reservas a CSV (Excel) y contactar al cliente por WhatsApp con un clic | ✅ |
 | RF-10 | Galería filtrable por categoría con visor a pantalla completa (teclado y deslizar) | ✅ |
 | RF-11 | Plan B: si el servidor no responde, la reserva se puede enviar por WhatsApp | ✅ |
+| RF-13 | Facturación en el panel: facturas y boletas con RUC 20616633733, numeración F001/B001, IGV 18 %, total en letras, impresión/PDF, anulación y envío a SUNAT vía Nubefact | ✅ (envío a SUNAT al configurar Nubefact) |
 | RF-12 | Preguntas frecuentes, testimonios, mapa, política de privacidad y página 404 | ✅ |
 
 ## Requerimientos no funcionales (RNF)
@@ -76,4 +77,5 @@
 - **Redes sociales**: Facebook y TikTok enlazan a una búsqueda por nombre; reemplazar por la URL exacta del perfil en `site.data.ts`.
 - **Más fotos** de trabajos en `public/images/trabajos/`.
 - **Razón social**: confirmar el nombre que va en las facturas (pregunta frecuente y datos estructurados).
+- **Facturación electrónica**: crear cuenta en Nubefact y cargar `NUBEFACT_URL` y `NUBEFACT_TOKEN` en Render; mientras tanto los comprobantes quedan como borrador. Confirmar que la razón social `AIRCONSOLUTION SERVICES SAC` coincide exactamente con la de SUNAT (`INVOICE_BUSINESS_NAME`).
 - Opcional: aviso por correo al negocio en cada reserva nueva, recordatorio automático por WhatsApp (API de WhatsApp Business) y pre-renderizado (SSG) para un SEO aún mejor.
