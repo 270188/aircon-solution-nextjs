@@ -33,6 +33,7 @@
 | RF-10 | Galería filtrable por categoría con visor a pantalla completa (teclado y deslizar) | ✅ |
 | RF-11 | Plan B: si el servidor no responde, la reserva se puede enviar por WhatsApp | ✅ |
 | RF-13 | Facturación en el panel: facturas y boletas con RUC 20616633733, numeración F001/B001, IGV 18 %, total en letras, impresión/PDF, anulación y envío a SUNAT vía Nubefact | ✅ (envío a SUNAT al configurar Nubefact) |
+| RF-14 | Cotizaciones en el panel con IGV incluido o sumado (+18 %), descarga en Excel con el logo y fórmulas editables, estados y conversión a factura | ✅ |
 | RF-12 | Preguntas frecuentes, testimonios, mapa, política de privacidad y página 404 | ✅ |
 
 ## Requerimientos no funcionales (RNF)

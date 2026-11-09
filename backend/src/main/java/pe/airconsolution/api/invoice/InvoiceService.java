@@ -1,7 +1,6 @@
 package pe.airconsolution.api.invoice;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,7 +25,6 @@ import pe.airconsolution.api.invoice.InvoiceDtos.ItemResponse;
 @Service
 public class InvoiceService {
 
-    static final BigDecimal IGV_RATE = new BigDecimal("0.18");
     /** SUNAT exige identificar al cliente en boletas desde S/ 700. */
     static final BigDecimal BOLETA_ID_THRESHOLD = new BigDecimal("700.00");
 
@@ -153,18 +151,15 @@ public class InvoiceService {
     }
 
     static InvoiceItem computeItem(ItemRequest r) {
-        BigDecimal qty = r.quantity().setScale(2, RoundingMode.HALF_UP);
-        BigDecimal price = r.unitPrice().setScale(2, RoundingMode.HALF_UP);
-        BigDecimal total = price.multiply(qty).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal subtotal = total.divide(BigDecimal.ONE.add(IGV_RATE), 2, RoundingMode.HALF_UP);
+        Igv.Line line = Igv.split(r.quantity(), r.unitPrice());
         InvoiceItem it = new InvoiceItem();
         it.setDescription(r.description().trim());
-        it.setQuantity(qty);
-        it.setUnitPrice(price);
-        it.setUnitValue(price.divide(BigDecimal.ONE.add(IGV_RATE), 6, RoundingMode.HALF_UP));
-        it.setSubtotal(subtotal);
-        it.setIgv(total.subtract(subtotal));
-        it.setTotal(total);
+        it.setQuantity(line.quantity());
+        it.setUnitPrice(line.unitPrice());
+        it.setUnitValue(line.unitValue());
+        it.setSubtotal(line.subtotal());
+        it.setIgv(line.igv());
+        it.setTotal(line.total());
         return it;
     }
 

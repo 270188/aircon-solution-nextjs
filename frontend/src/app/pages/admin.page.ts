@@ -10,6 +10,7 @@ import {
   BookingStatus,
   ContactMessage,
   Page,
+  Quote,
   Subscriber,
   describeError,
 } from '../core/api.service';
@@ -18,13 +19,14 @@ import { longDate, prettyTime } from '../shared/dates';
 import { IconComponent } from '../shared/icon.component';
 import { CountUpDirective } from '../shared/count-up.directive';
 import { InvoicingComponent } from './admin/invoicing.component';
+import { QuotesComponent } from './admin/quotes.component';
 
 const SESSION_KEY = 'acs-admin';
 
 /** Panel interno: reservas, mensajes y suscriptores. Protegido por usuario y contraseña en el backend. */
 @Component({
   selector: 'app-admin-page',
-  imports: [FormsModule, DatePipe, IconComponent, CountUpDirective, InvoicingComponent],
+  imports: [FormsModule, DatePipe, IconComponent, CountUpDirective, InvoicingComponent, QuotesComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './page-shell.scss',
   templateUrl: './admin.page.html',
@@ -66,6 +68,7 @@ const SESSION_KEY = 'acs-admin';
     .msg p { white-space: pre-wrap; }
     .pager { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 18px; }
     .empty { text-align: center; color: var(--text-muted); padding: 40px; }
+    .row-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .subs { display: grid; gap: 8px; }
     .subs li { display: flex; justify-content: space-between; padding: 12px 16px; border-radius: 12px; background: var(--bg-elevated); border: 1px solid var(--border); }
   `,
@@ -83,7 +86,9 @@ export class AdminPage implements OnInit {
   protected readonly auth = signal<string | null>(null);
   protected readonly loggingIn = signal(false);
 
-  protected readonly tab = signal<'reservas' | 'mensajes' | 'suscriptores' | 'facturacion'>('reservas');
+  protected readonly tab = signal<'reservas' | 'mensajes' | 'suscriptores' | 'cotizaciones' | 'facturacion'>('reservas');
+  protected readonly quoting = signal<AdminBooking | null>(null);
+  protected readonly billingQuote = signal<Quote | null>(null);
   /** Reserva a facturar: abre la pestaña de facturación con el formulario prellenado. */
   protected readonly billing = signal<AdminBooking | null>(null);
   protected readonly stats = signal<AdminStats | null>(null);
@@ -172,7 +177,19 @@ export class AdminPage implements OnInit {
   }
 
   protected bill(b: AdminBooking): void {
+    this.billingQuote.set(null);
     this.billing.set({ ...b });
+    this.tab.set('facturacion');
+  }
+
+  protected quoteBooking(b: AdminBooking): void {
+    this.quoting.set({ ...b });
+    this.tab.set('cotizaciones');
+  }
+
+  protected billQuote(q: Quote): void {
+    this.billing.set(null);
+    this.billingQuote.set({ ...q });
     this.tab.set('facturacion');
   }
 

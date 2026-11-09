@@ -21,3 +21,17 @@ export function lineTotals(quantity: number, unitPrice: number): { subtotal: num
   const subtotal = round2(total / 1.18);
   return { subtotal, igv: round2(total - subtotal), total };
 }
+
+/** Cálculo de una línea con precio SIN IGV: el 18 % se suma encima (igual que el backend). */
+export function lineTotalsPlusIgv(quantity: number, unitPrice: number): { subtotal: number; igv: number; total: number } {
+  const subtotal = round2(round2(unitPrice) * round2(quantity));
+  const igv = round2(subtotal * 0.18);
+  return { subtotal, igv, total: round2(subtotal + igv) };
+}
+
+/** Desglosa el IGV de un total que ya lo incluye. */
+export function splitTotal(total: number): { subtotal: number; igv: number; total: number } {
+  const t = round2(total);
+  const subtotal = round2(t / 1.18);
+  return { subtotal, igv: round2(t - subtotal), total: t };
+}

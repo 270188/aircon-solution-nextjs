@@ -181,6 +181,55 @@ export interface InvoicingSettings {
   electronicEnabled: boolean;
 }
 
+export type QuoteStatus = 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA' | 'VENCIDA';
+
+export interface QuoteRequest {
+  customerDoc: string | null;
+  customerName: string;
+  customerContact: string | null;
+  customerPhone: string | null;
+  customerEmail: string | null;
+  customerAddress: string | null;
+  bookingId: number | null;
+  validDays: number;
+  pricesIncludeIgv: boolean;
+  notes: string | null;
+  items: InvoiceItemInput[];
+}
+
+export interface Quote {
+  id: number;
+  code: string;
+  issueDate: string;
+  validUntil: string;
+  customerDoc: string | null;
+  customerName: string;
+  customerContact: string | null;
+  customerPhone: string | null;
+  customerEmail: string | null;
+  customerAddress: string | null;
+  bookingId: number | null;
+  pricesIncludeIgv: boolean;
+  subtotal: number;
+  igv: number;
+  total: number;
+  totalInWords: string;
+  status: QuoteStatus;
+  notes: string | null;
+  createdAt: string;
+  items: { lineNo: number; description: string; quantity: number; unitPrice: number; subtotal: number; igv: number; total: number }[];
+}
+
+export interface QuoteSummary {
+  id: number;
+  code: string;
+  issueDate: string;
+  validUntil: string;
+  customerName: string;
+  total: number;
+  status: QuoteStatus;
+}
+
 /** Las llamadas van a /api/... ; en desarrollo un proxy y en Vercel un rewrite las envían a Spring Boot. */
 const API = '/api/v1';
 
@@ -277,6 +326,31 @@ export class ApiService {
 
   voidInvoice(auth: string, id: number, reason: string): Observable<Invoice> {
     return this.http.post<Invoice>(`${API}/admin/invoices/${id}/void`, { reason }, { headers: this.authHeaders(auth) });
+  }
+
+  // ---- Cotizaciones ----
+
+  quotes(auth: string, page: number): Observable<Page<QuoteSummary>> {
+    return this.http.get<Page<QuoteSummary>>(`${API}/admin/quotes`, {
+      headers: this.authHeaders(auth),
+      params: { page: String(page), size: '15' },
+    });
+  }
+
+  quote(auth: string, id: number): Observable<Quote> {
+    return this.http.get<Quote>(`${API}/admin/quotes/${id}`, { headers: this.authHeaders(auth) });
+  }
+
+  createQuote(auth: string, body: QuoteRequest): Observable<Quote> {
+    return this.http.post<Quote>(`${API}/admin/quotes`, body, { headers: this.authHeaders(auth) });
+  }
+
+  quoteStatus(auth: string, id: number, status: QuoteStatus): Observable<Quote> {
+    return this.http.patch<Quote>(`${API}/admin/quotes/${id}/status`, { status }, { headers: this.authHeaders(auth) });
+  }
+
+  quoteExcel(auth: string, id: number): Observable<Blob> {
+    return this.http.get(`${API}/admin/quotes/${id}/excel`, { headers: this.authHeaders(auth), responseType: 'blob' });
   }
 
   private authHeaders(auth: string): HttpHeaders {

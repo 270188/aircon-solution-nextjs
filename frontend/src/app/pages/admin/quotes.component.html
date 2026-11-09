@@ -1,0 +1,157 @@
+<div class="head">
+  <div>
+    <h2>Cotizaciones</h2>
+    <p class="muted">Crea presupuestos para tus clientes y descárgalos en Excel con el logo de la empresa.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="openForm()"><app-icon name="ticket" [size]="16" /> Nueva cotización</button>
+</div>
+
+@if (list(); as p) {
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Número</th><th>Fecha</th><th>Cliente</th><th class="num">Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        @for (q of p.items; track q.id) {
+          <tr>
+            <td><strong>{{ q.code }}</strong><small>Válida hasta {{ q.validUntil | date: 'dd/MM/yyyy' }}</small></td>
+            <td>{{ q.issueDate | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ q.customerName }}</td>
+            <td class="num">S/ {{ q.total | number: '1.2-2' }}</td>
+            <td><span class="pill" [class]="'pill q-' + q.status">{{ statusLabel[q.status] }}</span></td>
+            <td class="actions">
+              <button type="button" class="link" (click)="open(q.id)">Ver</button>
+              <button type="button" class="link" [disabled]="downloading() === q.id" (click)="download(q.id, q.code)">Excel</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6" class="empty">Aún no hay cotizaciones. Crea la primera con “Nueva cotización”.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (p.totalPages > 1) {
+    <div class="pager">
+      <button class="btn btn-outline btn-sm" type="button" [disabled]="p.page === 0" (click)="load(p.page - 1)">Anterior</button>
+      <span>{{ p.page + 1 }} / {{ p.totalPages }}</span>
+      <button class="btn btn-outline btn-sm" type="button" [disabled]="p.page + 1 >= p.totalPages" (click)="load(p.page + 1)">Siguiente</button>
+    </div>
+  }
+}
+
+@if (formOpen()) {
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="q-form-title" (click)="formOpen.set(false)">
+    <form class="sheet card" (click)="$event.stopPropagation()" (ngSubmit)="submit()">
+      <div class="sheet-head">
+        <h3 id="q-form-title">Nueva cotización</h3>
+        <button type="button" class="x" (click)="formOpen.set(false)" aria-label="Cerrar"><app-icon name="close" /></button>
+      </div>
+
+      <fieldset>
+        <legend>Cliente</legend>
+        <div class="grid2">
+          <label class="lbl">Nombre o razón social<input name="qName" [(ngModel)]="customerName" maxlength="200" /></label>
+          <label class="lbl">RUC / DNI (opcional)<input name="qDoc" [(ngModel)]="customerDoc" maxlength="15" inputmode="numeric" /></label>
+          <label class="lbl">Atención a (opcional)<input name="qContact" [(ngModel)]="customerContact" maxlength="120" /></label>
+          <label class="lbl">Teléfono<input name="qPhone" [(ngModel)]="customerPhone" maxlength="20" inputmode="tel" /></label>
+          <label class="lbl">Correo<input name="qEmail" type="email" [(ngModel)]="customerEmail" maxlength="160" /></label>
+          <label class="lbl">Dirección<input name="qAddress" [(ngModel)]="customerAddress" maxlength="250" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Detalle</legend>
+        <div class="toggle" role="radiogroup" aria-label="Cálculo del IGV">
+          <button type="button" role="radio" [attr.aria-checked]="includesIgv()" [class.on]="includesIgv()" (click)="includesIgv.set(true)">Precios con IGV</button>
+          <button type="button" role="radio" [attr.aria-checked]="!includesIgv()" [class.on]="!includesIgv()" (click)="includesIgv.set(false)">Precios sin IGV (+18 %)</button>
+        </div>
+        <div class="items">
+          @for (it of items(); track $index; let i = $index) {
+            <div class="item-row">
+              <input class="desc" [name]="'qd' + i" [ngModel]="it.description" (ngModelChange)="updateItem(i, 'description', $event)" placeholder="Descripción del servicio" maxlength="250" aria-label="Descripción" />
+              <input class="qty" [name]="'qq' + i" type="number" min="0.01" step="0.01" [ngModel]="it.quantity" (ngModelChange)="updateItem(i, 'quantity', $event)" aria-label="Cantidad" />
+              <input class="price" [name]="'qp' + i" type="number" min="0.01" step="0.01" [ngModel]="it.unitPrice" (ngModelChange)="updateItem(i, 'unitPrice', $event)"
+                [attr.aria-label]="includesIgv() ? 'Precio unitario con IGV' : 'Precio unitario sin IGV'" />
+              <span class="line-total">S/ {{ lineAmount(it) | number: '1.2-2' }}</span>
+              <button type="button" class="x" (click)="removeItem(i)" [disabled]="items().length === 1" aria-label="Quitar ítem"><app-icon name="close" [size]="16" /></button>
+            </div>
+          }
+          <button type="button" class="link add" (click)="addItem()">+ Agregar ítem</button>
+        </div>
+        <dl class="sums">
+          <div><dt>Op. gravada</dt><dd>S/ {{ totals().subtotal | number: '1.2-2' }}</dd></div>
+          <div><dt>IGV (18 %)</dt><dd>S/ {{ totals().igv | number: '1.2-2' }}</dd></div>
+          <div class="grand"><dt>Total</dt><dd>S/ {{ totals().total | number: '1.2-2' }}</dd></div>
+        </dl>
+      </fieldset>
+
+      <div class="grid2">
+        <label class="lbl">Validez (días)<input name="qValid" type="number" min="1" max="90" [(ngModel)]="validDays" /></label>
+        <label class="lbl">Condiciones (opcional; si lo dejas vacío se usan las de siempre)
+          <input name="qNotes" [(ngModel)]="notes" maxlength="1500" placeholder="Forma de pago, garantía, plazos..." />
+        </label>
+      </div>
+
+      @if (formError()) { <p class="form-error" role="alert">{{ formError() }}</p> }
+
+      <div class="sheet-foot">
+        <button type="button" class="btn btn-outline btn-sm" (click)="formOpen.set(false)">Cancelar</button>
+        <button type="submit" class="btn btn-accent btn-sm" [disabled]="saving()">
+          @if (saving()) { <span class="spinner"></span> Guardando... } @else { Crear cotización }
+        </button>
+      </div>
+    </form>
+  </div>
+}
+
+@if (view(); as q) {
+  <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="'Cotización ' + q.code" (click)="view.set(null)">
+    <div class="viewer" (click)="$event.stopPropagation()">
+      <div class="viewer-bar">
+        <label class="status-select">Estado
+          <select [value]="q.status" (change)="setStatus(q, $any($event.target).value)">
+            @for (s of statuses; track s) { <option [value]="s">{{ statusLabel[s] }}</option> }
+          </select>
+        </label>
+        <div class="bar-actions">
+          <button class="btn btn-primary btn-sm" type="button" [disabled]="downloading() === q.id" (click)="download(q.id, q.code)">
+            <app-icon name="download" [size]="16" /> Descargar Excel
+          </button>
+          <button class="btn btn-outline btn-sm" type="button" (click)="bill.emit(q); view.set(null)"><app-icon name="ticket" [size]="16" /> Facturar</button>
+          <button type="button" class="x" (click)="view.set(null)" aria-label="Cerrar"><app-icon name="close" /></button>
+        </div>
+      </div>
+      <article class="paper">
+        <header class="p-head">
+          <div class="issuer">
+            <img src="images/logo.jpg" alt="" width="64" height="64" />
+            <div><strong>AIRCONSOLUTION SERVICES SAC</strong><span>RUC 20616633733</span></div>
+          </div>
+          <div class="box"><strong>COTIZACIÓN</strong><span>{{ q.code }}</span></div>
+        </header>
+        <section class="p-client">
+          <div><span>Cliente:</span> {{ q.customerName }}</div>
+          <div><span>Fecha:</span> {{ q.issueDate | date: 'dd/MM/yyyy' }}</div>
+          @if (q.customerDoc) { <div><span>RUC / DNI:</span> {{ q.customerDoc }}</div> }
+          <div><span>Válida hasta:</span> {{ q.validUntil | date: 'dd/MM/yyyy' }}</div>
+        </section>
+        <table class="p-items">
+          <thead><tr><th>Cant.</th><th>Descripción</th><th class="num">P. unit. {{ q.pricesIncludeIgv ? '(inc. IGV)' : '(sin IGV)' }}</th><th class="num">Importe</th></tr></thead>
+          <tbody>
+            @for (it of q.items; track it.lineNo) {
+              <tr><td>{{ it.quantity | number: '1.0-2' }}</td><td>{{ it.description }}</td><td class="num">{{ it.unitPrice | number: '1.2-2' }}</td>
+                <td class="num">{{ (q.pricesIncludeIgv ? it.total : it.subtotal) | number: '1.2-2' }}</td></tr>
+            }
+          </tbody>
+        </table>
+        <div class="p-foot">
+          <div class="words"><p>{{ q.totalInWords }}</p></div>
+          <dl>
+            <div><dt>Op. gravada</dt><dd>S/ {{ q.subtotal | number: '1.2-2' }}</dd></div>
+            <div><dt>IGV 18 %</dt><dd>S/ {{ q.igv | number: '1.2-2' }}</dd></div>
+            <div class="grand"><dt>Total</dt><dd>S/ {{ q.total | number: '1.2-2' }}</dd></div>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </div>
+}

@@ -40,7 +40,8 @@
         Mensajes @if (stats()?.unreadMessages) { <span class="badge">{{ stats()?.unreadMessages }}</span> }
       </button>
       <button type="button" role="tab" [class.active]="tab() === 'suscriptores'" [attr.aria-selected]="tab() === 'suscriptores'" (click)="tab.set('suscriptores')">Suscriptores</button>
-      <button type="button" role="tab" [class.active]="tab() === 'facturacion'" [attr.aria-selected]="tab() === 'facturacion'" (click)="billing.set(null); tab.set('facturacion')">Facturación</button>
+      <button type="button" role="tab" [class.active]="tab() === 'cotizaciones'" [attr.aria-selected]="tab() === 'cotizaciones'" (click)="quoting.set(null); tab.set('cotizaciones')">Cotizaciones</button>
+      <button type="button" role="tab" [class.active]="tab() === 'facturacion'" [attr.aria-selected]="tab() === 'facturacion'" (click)="billing.set(null); billingQuote.set(null); tab.set('facturacion')">Facturación</button>
     </div>
 
     @switch (tab()) {
@@ -79,7 +80,10 @@
                   <label class="sr-only" [for]="'nt' + b.id">Notas internas</label>
                   <textarea [id]="'nt' + b.id" [(ngModel)]="notes[b.id]" placeholder="Notas internas (técnico asignado, costo...)"></textarea>
                   <button class="btn btn-outline btn-sm" type="button" (click)="updateStatus(b, b.status)">Guardar notas</button>
-                  <button class="btn btn-primary btn-sm" type="button" (click)="bill(b)"><app-icon name="ticket" [size]="16" /> Facturar</button>
+                  <div class="row-actions">
+                    <button class="btn btn-outline btn-sm" type="button" (click)="quoteBooking(b)">Cotizar</button>
+                    <button class="btn btn-primary btn-sm" type="button" (click)="bill(b)"><app-icon name="ticket" [size]="16" /> Facturar</button>
+                  </div>
                 </div>
               </div>
             } @empty {
@@ -129,7 +133,10 @@
         }
       }
       @case ('facturacion') {
-        <app-invoicing [auth]="auth()!" [fromBooking]="billing()" (unauthorized)="logout()" />
+        <app-invoicing [auth]="auth()!" [fromBooking]="billing()" [fromQuote]="billingQuote()" (unauthorized)="logout()" />
+      }
+      @case ('cotizaciones') {
+        <app-quotes [auth]="auth()!" [fromBooking]="quoting()" (bill)="billQuote($event)" (unauthorized)="logout()" />
       }
       @case ('suscriptores') {
         @if (subscribers(); as p) {

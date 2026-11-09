@@ -13,6 +13,7 @@ import {
   InvoiceType,
   InvoicingSettings,
   Page,
+  Quote,
   describeError,
 } from '../../core/api.service';
 import { business } from '../../core/site.data';
@@ -48,6 +49,8 @@ export class InvoicingComponent implements OnInit {
   readonly auth = input.required<string>();
   /** Reserva desde la que se pidió "Facturar" (prellena el formulario). */
   readonly fromBooking = input<AdminBooking | null>(null);
+  /** Cotización aceptada que se quiere facturar. */
+  readonly fromQuote = input<Quote | null>(null);
   readonly unauthorized = output<void>();
 
   private readonly api = inject(ApiService);
@@ -91,6 +94,10 @@ export class InvoicingComponent implements OnInit {
       const b = this.fromBooking();
       if (b) this.newFromBooking(b);
     });
+    effect(() => {
+      const q = this.fromQuote();
+      if (q) this.newFromQuote(q);
+    });
   }
 
   ngOnInit(): void {
@@ -114,6 +121,31 @@ export class InvoicingComponent implements OnInit {
     this.customerAddress = [b.address, b.district].filter(Boolean).join(', ');
     this.customerEmail = b.email ?? '';
     this.items.set([{ description: `${b.service} - Reserva ${b.code}`, quantity: 1, unitPrice: 0 }]);
+    this.formOpen.set(true);
+  }
+
+  private newFromQuote(q: Quote): void {
+    this.resetForm();
+    const doc = (q.customerDoc ?? '').trim();
+    if (isValidRuc(doc)) {
+      this.setType('FACTURA');
+      this.docNumber = doc;
+    } else if (isValidDni(doc)) {
+      this.docNumber = doc;
+    }
+    this.bookingId = q.bookingId;
+    this.customerName = q.customerName;
+    this.customerAddress = q.customerAddress ?? '';
+    this.customerEmail = q.customerEmail ?? '';
+    this.observations = `Según cotización ${q.code}`;
+    // Las facturas usan precios con IGV incluido.
+    this.items.set(
+      q.items.map((it) => ({
+        description: it.description,
+        quantity: it.quantity,
+        unitPrice: q.pricesIncludeIgv ? it.unitPrice : Math.round(it.unitPrice * 118) / 100,
+      })),
+    );
     this.formOpen.set(true);
   }
 
