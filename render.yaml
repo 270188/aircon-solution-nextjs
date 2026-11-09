@@ -10,6 +10,9 @@ services:
     plan: free
     region: oregon
     healthCheckPath: /actuator/health
+    domains:
+      - airconsolutionsac.com
+      - www.airconsolutionsac.com
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
