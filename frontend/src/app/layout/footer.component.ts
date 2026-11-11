@@ -78,6 +78,8 @@ import { RevealDirective } from '../shared/reveal.directive';
       </div>
       <p class="container credit">
         Esta página fue realizada por la desarrolladora de software <strong>Angela Valeria Ruiz León</strong>
+        · <a class="dev-phone" href="https://wa.me/51990073634" target="_blank" rel="noopener" aria-label="WhatsApp de la desarrolladora: 990 073 634">
+          <app-icon name="whatsapp" [size]="15" /> 990 073 634</a>
       </p>
     </footer>
   `,
@@ -108,7 +110,11 @@ import { RevealDirective } from '../shared/reveal.directive';
       border-top: 1px solid rgba(255,255,255,.08); font-size: .88rem; }
     .bottom nav { display: flex; gap: 18px; }
     .credit { margin-top: 18px; text-align: center; font-size: .85rem; color: #8a9bb0; }
+    /* espacio para que los botones flotantes no tapen el crédito en el celular */
+    @media (max-width: 720px) { .footer { padding-bottom: 170px; } }
     .credit strong { color: #fff; font-weight: 600; }
+    .dev-phone { display: inline-flex; align-items: center; gap: 5px; color: #fff; font-weight: 600; white-space: nowrap; }
+    .dev-phone:hover { color: var(--green-500); }
     .bottom a:hover { color: #fff; }
   `,
 })
