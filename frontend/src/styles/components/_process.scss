@@ -1,0 +1,28 @@
+/* Estilos de process (migrados del componente Angular) */
+.c-process {
+
+
+    .process { background: var(--bg-soft); overflow: hidden; }
+    .timeline { position: relative; max-width: 960px; margin: 0 auto; display: grid; gap: 34px; }
+    .rail { position: absolute; top: 0; bottom: 0; left: 31px; width: 3px; background: var(--border); border-radius: 3px; }
+    .rail span { display: block; height: 100%; transform-origin: top; background: var(--grad-brand); border-radius: 3px;
+      box-shadow: 0 0 14px rgba(94,198,255,.7); transition: transform .15s linear; }
+    .step { position: relative; padding-left: 90px; }
+    .node { position: absolute; left: 0; top: 10px; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--bg-elevated); border: 3px solid var(--border); color: var(--text-muted); z-index: 1;
+      transition: all .6s var(--ease-spring); }
+    .lit .node { background: var(--grad-ice); border-color: transparent; color: #fff; transform: scale(1.1); box-shadow: 0 0 0 8px rgba(30,136,229,.15); }
+    .card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; box-shadow: var(--shadow-sm); }
+    .n { font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange-500); }
+    h3 { margin: 6px 0 8px; font-size: 1.25rem; }
+    p { color: var(--text-muted); }
+    @media (min-width: 860px) {
+      .rail { left: 50%; margin-left: -1.5px; }
+      .step { padding: 0; width: 50%; padding-right: 64px; }
+      .step.right { margin-left: 50%; padding: 0 0 0 64px; }
+      .node { left: auto; right: -32px; }
+      .step.right .node { right: auto; left: -32px; }
+      .step:not(.right) .card { text-align: right; }
+    }
+  
+}

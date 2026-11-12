@@ -1,0 +1,38 @@
+/* Estilos de footer (migrados del componente Angular) */
+.c-footer {
+
+
+    .footer { position: relative; background: var(--navy-950); color: #b7c3d1; padding: 120px 0 28px; margin-top: 40px; overflow: hidden; }
+    .waves { position: absolute; top: -1px; left: 0; width: 200%; max-width: none; height: 90px; transform: scaleY(-1); animation: wave--footer 14s linear infinite; }
+    .w1 { fill: var(--bg); }
+    @keyframes wave--footer { to { transform: translateX(-50%) scaleY(-1); } }
+    .grid { display: grid; gap: 40px; grid-template-columns: 1fr; }
+    @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1024px) { .grid { grid-template-columns: 1.4fr 1fr 1.2fr 1.4fr; } }
+    .logo { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+    .logo img { border-radius: 50%; }
+    .logo strong { font-family: var(--font-display); font-size: 1.4rem; color: #fff; display: block; line-height: 1; }
+    .logo .con { color: var(--orange-500); }
+    .logo small { letter-spacing: .38em; font-size: .6rem; font-weight: 700; }
+    h4 { color: #fff; font-size: 1.05rem; margin-bottom: 18px; }
+    ul { display: grid; gap: 10px; }
+    a { transition: color .2s, padding .3s var(--ease-out); }
+    ul a:hover { color: #fff; padding-left: 6px; }
+    .contact li { display: flex; gap: 10px; align-items: flex-start; }
+    .contact .app-icon { color: var(--ice-400); margin-top: 3px; }
+    .social { display: flex; gap: 10px; margin-top: 18px; }
+    .social a { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.06);
+      color: #fff; transition: transform .35s var(--ease-spring), background .3s; }
+    .social a:hover { background: var(--blue-500); transform: translateY(-4px) rotate(-8deg); }
+    .bottom { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-top: 56px; padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,.08); font-size: .88rem; }
+    .bottom nav { display: flex; gap: 18px; }
+    .credit { margin-top: 18px; text-align: center; font-size: .85rem; color: #8a9bb0; }
+    /* espacio para que los botones flotantes no tapen el crédito en el celular */
+    @media (max-width: 720px) { .footer { padding-bottom: 170px; } }
+    .credit strong { color: #fff; font-weight: 600; }
+    .dev-phone { display: inline-flex; align-items: center; gap: 5px; color: #fff; font-weight: 600; white-space: nowrap; }
+    .dev-phone:hover { color: var(--green-500); }
+    .bottom a:hover { color: #fff; }
+  
+}

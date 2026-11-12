@@ -1,0 +1,11 @@
+/* Estilos de not-found-page (migrados del componente Angular) */
+.c-not-found-page {
+
+
+    .wrap { min-height: 90vh; display: grid; place-content: center; justify-items: center; text-align: center; gap: 14px; padding: 120px 20px 60px; }
+    .big { display: flex; align-items: center; font-family: var(--font-display); font-weight: 800; font-size: clamp(6rem, 20vw, 11rem); line-height: 1;
+      background: var(--grad-ice); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .flake { color: var(--ice-400); animation: spin 8s linear infinite; display: inline-flex; margin: 0 6px; }
+    p { color: var(--text-muted); margin-bottom: 10px; }
+  
+}

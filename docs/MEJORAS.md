@@ -44,12 +44,12 @@
 | RNF-02 | Anti-spam | Límite de 10 envíos por minuto por IP y campo trampa (honeypot) en todos los formularios |
 | RNF-03 | Integridad | Validación en el navegador **y** en el servidor (Bean Validation); bloqueo para que dos reservas simultáneas no tomen el último cupo |
 | RNF-04 | Legal | Casilla de consentimiento obligatoria y política de privacidad según la Ley 29733 |
-| RNF-05 | Rendimiento | ~126 KB comprimidos de carga inicial; páginas internas con carga diferida; imágenes WebP con respaldo JPG y `loading="lazy"`; caché inmutable para JS/CSS; compresión en el backend; hilos virtuales de Java 21 |
+| RNF-05 | Rendimiento | ~106 KB comprimidos de carga inicial (React + Vite); páginas internas con carga diferida; imágenes WebP con respaldo JPG y `loading="lazy"`; caché inmutable para JS/CSS; compresión en el backend; hilos virtuales de Java 21 |
 | RNF-06 | Accesibilidad | HTML semántico, enlace "saltar al contenido", foco visible, `aria-*` en menú, acordeón, carrusel y visor; navegación por teclado; respeta "reducir movimiento" del sistema |
 | RNF-07 | Responsivo | Diseñado para móvil primero; probado a 390 px sin desbordes horizontales |
 | RNF-08 | SEO | Metaetiquetas, Open Graph, datos estructurados `HVACBusiness`, `sitemap.xml`, `robots.txt`, títulos por página |
 | RNF-09 | Mantenibilidad | Contenido centralizado en `site.data.ts`; backend por módulos; migraciones versionadas (Flyway); errores uniformes RFC 9457 en español; API documentada con Swagger |
-| RNF-10 | Calidad | 8 pruebas de integración del backend y 6 pruebas unitarias del frontend, además de una prueba de punta a punta en navegador |
+| RNF-10 | Calidad | 8 pruebas de integración del backend y 8 pruebas del frontend (Vitest + Testing Library), además de una prueba de punta a punta en navegador |
 | RNF-11 | Disponibilidad | Health checks (`/actuator/health`), contenedor Docker sin privilegios de root, apagado ordenado |
 | RNF-12 | Portabilidad | Base de datos PostgreSQL estándar (Supabase, Neon, Render…), configuración por variables de entorno |
 

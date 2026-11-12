@@ -1,0 +1,5 @@
+/* Estilos de airflow-canvas (migrados del componente Angular) */
+.c-airflow-canvas {
+
+& { position: absolute; inset: 0; pointer-events: none; } canvas { width: 100%; height: 100%; }
+}

@@ -1,6 +1,6 @@
-# Imagen única: la página Angular se compila y la sirve el mismo Spring Boot que expone la API.
+# Imagen única: la página React (Vite + TypeScript) se compila y la sirve el mismo Spring Boot que expone la API.
 
-# ---- 1. Frontend (Angular) ----
+# ---- 1. Frontend (React + Vite + TypeScript) ----
 FROM node:22-alpine AS web
 WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json frontend/.npmrc ./
@@ -14,7 +14,7 @@ WORKDIR /app
 COPY backend/pom.xml .
 RUN mvn -B -q dependency:go-offline
 COPY backend/src ./src
-COPY --from=web /web/dist/frontend/browser/ ./src/main/resources/static/
+COPY --from=web /web/dist/ ./src/main/resources/static/
 RUN mvn -B -q package -DskipTests
 
 # ---- 3. Ejecución ----

@@ -1,0 +1,25 @@
+/* Estilos de about (migrados del componente Angular) */
+.c-about {
+
+
+    .grid { display: grid; gap: 64px; align-items: center; }
+    @media (min-width: 980px) { .grid { grid-template-columns: 1fr 1fr; gap: 80px; } }
+    .visual { position: relative; padding: 0 0 60px 0; max-width: 560px; }
+    .frame { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); }
+    .frame img { width: 100%; height: 100%; object-fit: cover; }
+    .main { aspect-ratio: 4 / 4.4; width: 82%; }
+    .small { position: absolute; right: 0; bottom: 0; width: 46%; aspect-ratio: 1; border: 6px solid var(--bg); }
+    .badge { position: absolute; top: 24px; right: 4%; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--grad-fire); color: #fff; box-shadow: 0 20px 40px -14px rgba(245,130,31,.7); }
+    .badge svg { position: absolute; inset: 0; animation: spin 16s linear infinite; }
+    .badge text { fill: #fff; font-size: 11px; font-weight: 700; letter-spacing: 2.6px; font-family: var(--font-display); }
+    .text p { color: var(--text-muted); margin-bottom: 14px; font-size: 1.05rem; }
+    .text strong { color: var(--text); }
+    .checks { display: grid; gap: 14px; margin: 26px 0 34px; }
+    .checks li { display: flex; align-items: center; gap: 14px; font-weight: 600; }
+    .tick { width: 30px; height: 30px; border-radius: 50%; background: rgba(30,136,229,.12); display: grid; place-items: center; flex-shrink: 0; }
+    .tick svg { width: 16px; fill: none; stroke: var(--blue-500); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset .8s .4s var(--ease-out); }
+    .checks li.is-visible .tick svg { stroke-dashoffset: 0; }
+  
+}

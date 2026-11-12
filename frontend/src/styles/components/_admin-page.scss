@@ -1,0 +1,60 @@
+/* Estilos de admin-page (migrados del componente Angular) */
+.c-admin-page {
+& {
+  display: block;
+  padding: calc(var(--header-h) + 56px) 0 80px;
+  min-height: 80vh;
+  background: radial-gradient(circle at 80% 0%, rgba(30, 136, 229, 0.12), transparent 40%), var(--bg);
+}
+.page-head {
+  margin-bottom: 36px;
+  animation: fadeUp 0.7s var(--ease-out) both;
+  p {
+    color: var(--text-muted);
+    max-width: 620px;
+  }
+}
+
+
+    .login { max-width: 420px; margin: 0 auto; padding: 34px; animation: fadeUp .6s var(--ease-out) both; }
+    .login h1 { font-size: 1.6rem; margin-bottom: 6px; } .login p { color: var(--text-muted); margin-bottom: 22px; }
+    .bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 24px; }
+    .bar h1 { font-size: 1.8rem; }
+    .bar .actions { display: flex; gap: 10px; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 26px; }
+    .kpi { padding: 20px; border-radius: var(--radius); background: var(--bg-elevated); border: 1px solid var(--border); animation: fadeUp .5s var(--ease-out) both; }
+    .kpi strong { display: block; font-family: var(--font-display); font-size: 2rem; } .kpi span { color: var(--text-muted); font-size: .88rem; }
+    .kpi.hl { background: var(--grad-ice); color: #fff; border: 0; } .kpi.hl span { color: rgba(255,255,255,.85); }
+    .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; }
+    .tabs button { padding: 12px 16px; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+    .tabs button.active { color: var(--blue-500); border-color: var(--blue-500); }
+    .badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px; border-radius: 10px; background: var(--orange-500); color: #fff; font-size: .72rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .filters button { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border); font-size: .85rem; font-weight: 600; }
+    .filters button.active { background: var(--navy-800); color: #fff; border-color: transparent; }
+    [data-theme='dark'] & .filters button.active { background: var(--blue-500); }
+    .list { display: grid; gap: 12px; }
+    .row { padding: 18px; border-radius: var(--radius); background: var(--bg-elevated); border: 1px solid var(--border); display: grid; gap: 12px;
+      animation: fadeUp .4s var(--ease-out) both; }
+    @media (min-width: 900px) { .row { grid-template-columns: 1.3fr 1fr 1.2fr; align-items: start; } }
+    .row h3 { font-size: 1.05rem; } .muted { color: var(--text-muted); font-size: .88rem; }
+    .row a { color: var(--blue-500); }
+    .code { font-family: var(--font-display); font-weight: 700; letter-spacing: .05em; font-size: .85rem; color: var(--text-muted); }
+    .when { font-weight: 700; } .when::first-letter { text-transform: uppercase; }
+    .ctrl { display: grid; gap: 8px; }
+    .ctrl select, .ctrl textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-soft); }
+    .ctrl textarea { min-height: 60px; resize: vertical; }
+    .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .75rem; font-weight: 700; }
+    .pill.PENDIENTE { background: rgba(245,130,31,.15); color: var(--orange-600); }
+    .pill.CONFIRMADA, .pill.EN_PROCESO { background: rgba(30,136,229,.15); color: var(--blue-500); }
+    .pill.COMPLETADA { background: rgba(34,197,94,.15); color: #16a34a; }
+    .pill.CANCELADA { background: rgba(239,68,68,.12); color: var(--red-500); }
+    .msg.unread { border-left: 4px solid var(--orange-500); }
+    .msg p { white-space: pre-wrap; }
+    .pager { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 18px; }
+    .empty { text-align: center; color: var(--text-muted); padding: 40px; }
+    .row-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .subs { display: grid; gap: 8px; }
+    .subs li { display: flex; justify-content: space-between; padding: 12px 16px; border-radius: 12px; background: var(--bg-elevated); border: 1px solid var(--border); }
+  
+}

@@ -1,0 +1,27 @@
+/* Estilos de preloader (migrados del componente Angular) */
+.c-preloader {
+
+
+    .preloader {
+      position: fixed; inset: 0; z-index: 2000; display: grid; place-content: center; justify-items: center; gap: 18px;
+      background: radial-gradient(circle at 50% 40%, #13294a, #050d1a 70%);
+      transition: clip-path .9s cubic-bezier(.76,0,.24,1);
+      clip-path: inset(0 0 0 0);
+    }
+    .preloader.leaving { clip-path: inset(0 0 100% 0); }
+    .emblem { width: 96px; height: 96px; }
+    svg { width: 100%; height: 100%; fill: none; stroke-linecap: round; }
+    .ring { stroke: rgba(94,198,255,.25); stroke-width: 3; stroke-dasharray: 276; stroke-dashoffset: 276;
+      animation: draw--preloader 1.2s cubic-bezier(.16,1,.3,1) forwards; }
+    .flake { stroke: #5ec6ff; stroke-width: 4; transform-origin: 50px 50px; animation: spin--preloader 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .word { font-family: var(--font-display); font-weight: 800; letter-spacing: .2em; color: #fff; font-size: .9rem;
+      animation: fadeUp .8s .2s both; }
+    .air { color: #fff; } .con { color: #f5821f; }
+    .bar { width: 160px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 40%; border-radius: 3px; background: linear-gradient(90deg,#5ec6ff,#f5821f);
+      animation: load--preloader 1.1s ease-in-out infinite; }
+    @keyframes draw--preloader { to { stroke-dashoffset: 0; } }
+    @keyframes spin--preloader { to { transform: rotate(360deg); } }
+    @keyframes load--preloader { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+  
+}

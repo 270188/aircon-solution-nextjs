@@ -1,0 +1,335 @@
+/* Estilos de hero (migrados del componente Angular) */
+.c-hero {
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: calc(var(--header-h) + 40px) 0 110px;
+  color: #fff;
+  background: var(--navy-950);
+}
+
+.bg {
+  position: absolute;
+  inset: -12% 0;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: kenburns--hero 24s ease-in-out infinite alternate;
+  }
+}
+@keyframes kenburns--hero {
+  from {
+    transform: scale(1.05) translate(0, 0);
+  }
+  to {
+    transform: scale(1.18) translate(-2%, -2%);
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(5, 13, 26, 0.96) 0%, rgba(5, 13, 26, 0.82) 45%, rgba(5, 13, 26, 0.35) 100%),
+    linear-gradient(0deg, rgba(5, 13, 26, 0.9) 0%, transparent 35%);
+}
+
+/* auroras de color que se mueven lento */
+.aurora span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  animation: drift--hero 18s ease-in-out infinite alternate;
+  &:nth-child(1) {
+    width: 480px;
+    height: 480px;
+    background: #1e88e5;
+    top: -120px;
+    left: -100px;
+  }
+  &:nth-child(2) {
+    width: 380px;
+    height: 380px;
+    background: #5ec6ff;
+    bottom: -140px;
+    left: 30%;
+    animation-duration: 22s;
+  }
+  &:nth-child(3) {
+    width: 300px;
+    height: 300px;
+    background: #f5821f;
+    top: 20%;
+    right: -80px;
+    opacity: 0.25;
+    animation-duration: 26s;
+  }
+}
+@keyframes drift--hero {
+  to {
+    transform: translate(80px, 60px) scale(1.15);
+  }
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 26px;
+  animation: fadeUp 0.9s 1.2s var(--ease-out) both;
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    animation: live--hero 1.8s infinite;
+  }
+}
+@keyframes live--hero {
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+h1 {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  margin-bottom: 26px;
+  max-width: 800px;
+}
+.line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+.word {
+  display: inline-block;
+  transform: translateY(110%) rotate(6deg);
+  animation: wordIn--hero 1s var(--ease-out) forwards;
+  animation-delay: calc(1.25s + var(--d) * 0.09s);
+}
+@keyframes wordIn--hero {
+  to {
+    transform: none;
+  }
+}
+.fire {
+  background: var(--grad-fire);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.typed-line {
+  min-height: 1.1em;
+  animation: fadeUp 0.8s 1.5s both;
+}
+.caret {
+  display: inline-block;
+  width: 4px;
+  height: 0.85em;
+  margin-left: 6px;
+  vertical-align: -0.06em;
+  border-radius: 2px;
+  background: var(--ice-400);
+  animation: blink--hero 1s steps(1) infinite;
+}
+@keyframes blink--hero {
+  50% {
+    opacity: 0;
+  }
+}
+
+.lead {
+  max-width: 560px;
+  color: #c9d6e6;
+  font-size: 1.12rem;
+  margin-bottom: 36px;
+  animation: fadeUp 0.9s 1.7s var(--ease-out) both;
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  animation: fadeUp 0.9s 1.85s var(--ease-out) both;
+  .btn {
+    padding: 17px 30px;
+  }
+}
+
+.trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-top: 36px;
+  color: #c9d6e6;
+  font-size: 0.92rem;
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeUp 0.7s var(--ease-out) forwards;
+    &:nth-child(1) {
+      animation-delay: 2s;
+    }
+    &:nth-child(2) {
+      animation-delay: 2.1s;
+    }
+    &:nth-child(3) {
+      animation-delay: 2.2s;
+    }
+  }
+  .app-icon {
+    color: var(--ice-400);
+  }
+}
+
+.floating {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  @media (min-width: 1100px) {
+    display: block;
+  }
+}
+.glass-card {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1.1;
+  }
+  small {
+    color: #c9d6e6;
+    font-size: 0.8rem;
+  }
+  &.c1 {
+    top: 26%;
+    right: 9%;
+    animation: popIn--hero 0.9s 2.2s var(--ease-spring) forwards, float 6s 3.1s ease-in-out infinite;
+  }
+  &.c2 {
+    top: 50%;
+    right: 20%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    animation: popIn--hero 0.9s 2.4s var(--ease-spring) forwards, float 7s 3.3s ease-in-out infinite;
+  }
+  &.c3 {
+    bottom: 18%;
+    right: 7%;
+    animation: popIn--hero 0.9s 2.6s var(--ease-spring) forwards, float 5.5s 3.5s ease-in-out infinite;
+  }
+}
+@keyframes popIn--hero {
+  from {
+    opacity: 0;
+    transform: scale(0.6) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ic {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  &.ice {
+    background: var(--grad-ice);
+  }
+  &.fire-bg {
+    background: var(--grad-fire);
+  }
+}
+.stars {
+  display: flex;
+  gap: 2px;
+  color: #fbbf24;
+  svg {
+    fill: currentColor;
+  }
+}
+
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  z-index: 3;
+  transform: translateX(-50%);
+  animation: fadeUp 1s 2.6s both;
+}
+.mouse {
+  display: block;
+  width: 28px;
+  height: 44px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  position: relative;
+  span {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    width: 4px;
+    height: 8px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: #fff;
+    animation: wheel--hero 1.8s ease-in-out infinite;
+  }
+}
+@keyframes wheel--hero {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+}

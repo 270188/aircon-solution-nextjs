@@ -1,11 +1,11 @@
-# AIRCONSOLUTION SERVICES SAC — Angular + Spring Boot
+# AIRCONSOLUTION SERVICES SAC — React + Vite + TypeScript y Spring Boot
 
 Sitio web y sistema de reservas de **AIRCONSOLUTION SERVICES SAC** (aire acondicionado, mantenimiento,
 electricidad, estructuras metálicas y bombas de agua en Lima).
 
 | Parte | Tecnología | Carpeta | Dónde se publica |
 |---|---|---|---|
-| Frontend | Angular 21 (standalone, signals, zoneless) | `frontend/` | Render (servido por Spring Boot) |
+| Frontend | React 19 + Vite 8 + TypeScript | `frontend/` | Render (servido por Spring Boot) |
 | Backend | Spring Boot 4.1 · Java 21 · JPA · Flyway · Spring Security | `backend/` | Render (Docker), junto con el frontend |
 | Base de datos | PostgreSQL. H2 en memoria para desarrollo | — | Neon |
 
@@ -26,7 +26,7 @@ ADMIN_PASSWORD=demo1234 mvn spring-boot:run
 # Terminal 2 — frontend en http://localhost:4200
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
 - Documentación de la API (Swagger): http://localhost:8080/swagger-ui.html
@@ -42,10 +42,14 @@ cd backend && mvn test
 cd frontend && npm test
 ```
 
+```bash
+cd frontend && npm run build    # comprueba tipos con TypeScript y compila con Vite en frontend/dist
+```
+
 ## Publicar (Render + Neon, gratis)
 
 Todo corre en **un solo servicio** de Render: la imagen Docker (`Dockerfile` en la raíz) compila la página
-Angular y la sirve el mismo Spring Boot que expone la API, así no hay problemas de dominios cruzados.
+React con Vite y la sirve el mismo Spring Boot que expone la API, así no hay problemas de dominios cruzados.
 
 - **Base de datos:** PostgreSQL gratis en [Neon](https://neon.tech) (proyecto `airconsolution-services`).
   Las tablas se crean solas al arrancar (Flyway).
@@ -75,13 +79,16 @@ backend/
   src/main/resources/
     application.yml        Configuración (horarios, cupos por horario, días cerrados…)
     db/migration/          Esquema de base de datos (Flyway)
-frontend/
-  src/app/
+frontend/                 React 19 + Vite + TypeScript
+  index.html               Página base (SEO, datos estructurados para Google)
+  src/
     core/site.data.ts      TODO el contenido editable del sitio
-    core/api.service.ts    Cliente de la API
+    core/api.ts            Cliente de la API (fetch)
+    core/ui.ts             Avisos, tema claro/oscuro y servicio preseleccionado
     layout/                Cabecera, pie, pantalla de carga, efectos, avisos
     sections/              Secciones de la portada (hero, servicios, galería, reservas…)
-    pages/                 Inicio, seguimiento, panel, privacidad, 404
-    shared/                Directivas de animación, íconos y utilidades
+    pages/                 Inicio, seguimiento, panel (cotizaciones y facturación), privacidad, 404
+    shared/                Animaciones (data-reveal, data-tilt…), íconos, fechas, IGV y RUC
+    styles/                Estilos globales y de cada componente (SCSS)
   public/images/trabajos/  Fotos de trabajos reales
 ```
