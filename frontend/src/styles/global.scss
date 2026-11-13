@@ -650,3 +650,30 @@ section {
     }
   }
 }
+
+/* Contenido de respaldo para buscadores y navegadores sin JavaScript (React lo reemplaza al cargar). */
+.seo-fallback {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: calc(var(--header-h) + 24px) 20px 60px;
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+  h2 {
+    margin: 26px 0 10px;
+  }
+  h3 {
+    font-size: 1.05rem;
+    margin-top: 12px;
+  }
+  ul {
+    list-style: disc;
+    padding-left: 20px;
+  }
+  p,
+  address {
+    color: var(--text-muted);
+    font-style: normal;
+  }
+}

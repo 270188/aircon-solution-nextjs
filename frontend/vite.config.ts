@@ -1,8 +1,10 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
+import { seoPlugin } from './seo';
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), seoPlugin()],
   server: {
     port: 4200,
     // En desarrollo las llamadas /api van al backend Spring Boot.

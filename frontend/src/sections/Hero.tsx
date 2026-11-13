@@ -70,15 +70,16 @@ export function Hero() {
               ))}
             </span>
             <span className="line typed-line">
-              <span className="typed text-gradient">{typed}</span>
+              {/* El texto que se escribe solo es decorativo; buscadores y lectores de pantalla leen la frase completa. */}
+              <span className="typed text-gradient" aria-hidden="true">{typed}</span>
               <span className="caret" aria-hidden="true"></span>
+              <span className="sr-only">climatización, mantenimiento, electricidad y reparaciones en Lima</span>
             </span>
             <span className="line">
               <span className="word" style={{ ['--d' as string]: 4 }}>y&nbsp;</span>
               <span className="word fire" style={{ ['--d' as string]: 5 }}>confort</span>
             </span>
           </h1>
-          <span className="sr-only">Climatización, mantenimiento, electricidad y reparaciones.</span>
 
           <p className="lead">
             Instalamos, reparamos y mantenemos tus equipos de aire acondicionado e instalaciones eléctricas,

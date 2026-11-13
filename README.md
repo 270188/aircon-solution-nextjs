@@ -58,6 +58,11 @@ React con Vite y la sirve el mismo Spring Boot que expone la API, así no hay pr
 - **Contraseña del panel:** Render la genera; se ve en el servicio → **Environment** → `ADMIN_PASSWORD`.
 - En el plan gratis el servicio se duerme tras 15 minutos sin visitas; la siguiente visita tarda ~1 minuto.
 
+### SEO
+Se genera solo al compilar a partir de `frontend/src/core/site.data.ts` (ver `frontend/seo.ts`): datos estructurados
+para Google, contenido de respaldo para buscadores, `sitemap.xml` con las fotos y los títulos/descripciones de cada página
+(`pageSeo`). Si cambias el dominio, actualiza `SITE_URL` en ese archivo y `frontend/public/robots.txt`.
+
 ### Dominio propio
 En Render → servicio → **Settings → Custom Domains** agrega tu dominio y crea en Hosting Perú los registros
 DNS que Render te indique. Si tu dominio no es `airconsolutionsac.com`, reemplázalo en

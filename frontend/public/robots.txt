@@ -1,5 +1,7 @@
+# AIRCONSOLUTION SERVICES SAC
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /api/
 
 Sitemap: https://airconsolutionsac.com/sitemap.xml

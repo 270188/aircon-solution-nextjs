@@ -3,8 +3,12 @@
  * testimonios o preguntas frecuentes sin tocar los componentes.
  */
 
+/** Dominio principal (sin barra final). Se usa en las URL canónicas, el sitemap y los datos para Google. */
+export const SITE_URL = 'https://airconsolutionsac.com';
+
 export const business = {
   name: 'AIRCONSOLUTION SERVICES SAC',
+  ruc: '20616633733',
   legalName: 'AIRCONSOLUTION SERVICES SAC',
   phone: '+51985899731',
   phoneDisplay: '+51 985 899 731',
@@ -13,6 +17,13 @@ export const business = {
   email: 'aircon82@gmail.com',
   address: 'Calle 20 Mz. 28 Lt. 17 A.H. Laura Caller, Los Olivos, Lima',
   hours: 'Lun – Sáb: 8:00 a.m. – 6:00 p.m. · Emergencias 24/7',
+  // Para Google: dirección separada y horario en formato estándar.
+  street: 'Calle 20 Mz. 28 Lt. 17 A.H. Laura Caller',
+  district: 'Los Olivos',
+  region: 'Lima',
+  openingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  opens: '08:00',
+  closes: '18:00',
   mapEmbedSrc: 'https://maps.google.com/maps?q=AirconSolutionSAC,Los+Olivos,Lima&z=16&output=embed',
   mapLink: 'https://www.google.com/maps/place/?q=place_id:ChIJaWvmcgDPBZERs2kE8Nof2Sw',
   facebook: 'https://www.facebook.com/share/1GKozztUeq/',
@@ -249,3 +260,25 @@ export const faqs = [
     a: 'Sí, emitimos boleta o factura electrónica como AIRCONSOLUTION SERVICES SAC.',
   },
 ];
+
+/** Título y descripción de cada página para Google y las redes sociales. */
+export const pageSeo: Record<string, { title: string; description: string; noindex?: boolean }> = {
+  '/': {
+    title: 'Aire acondicionado en Lima | AIRCONSOLUTION SERVICES SAC',
+    description:
+      'Instalación, mantenimiento y reparación de aire acondicionado y electricidad en Lima. Garantía por escrito, emergencias 24/7 y reserva en línea.',
+  },
+  '/seguimiento': {
+    title: 'Seguir mi reserva | AIRCONSOLUTION SERVICES SAC',
+    description: 'Consulta el estado de tu visita técnica con el código de reserva que recibiste.',
+  },
+  '/privacidad': {
+    title: 'Política de privacidad | AIRCONSOLUTION SERVICES SAC',
+    description: 'Cómo protegemos tus datos personales según la Ley N.° 29733 de Protección de Datos Personales del Perú.',
+  },
+  '/admin': {
+    title: 'Panel | AIRCONSOLUTION SERVICES SAC',
+    description: 'Panel interno de administración.',
+    noindex: true,
+  },
+};
