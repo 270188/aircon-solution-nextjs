@@ -264,7 +264,7 @@ export const faqs = [
 /** Título y descripción de cada página para Google y las redes sociales. */
 export const pageSeo: Record<string, { title: string; description: string; noindex?: boolean }> = {
   '/': {
-    title: 'Aire acondicionado en Lima | AIRCONSOLUTION SERVICES SAC',
+    title: 'AIRCONSOLUTION SERVICES SAC :: Aire Acondicionado en Lima',
     description:
       'Instalación, mantenimiento y reparación de aire acondicionado y electricidad en Lima. Garantía por escrito, emergencias 24/7 y reserva en línea.',
   },
