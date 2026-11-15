@@ -6,6 +6,8 @@ import { ui, useUi } from '../core/ui';
 import { FACEBOOK_ANDROID_PACKAGE, TIKTOK_ANDROID_PACKAGE, appLink } from '../shared/appLink';
 import { Icon } from '../shared/Icon';
 
+/** Lema bajo el nombre; cada letra va en su propio span para repartirlas a lo ancho. */
+const SLOGAN = 'AIRE ACONDICIONADO EN LIMA';
 const wa = whatsappLink();
 const tiktok = appLink(business.tiktok, TIKTOK_ANDROID_PACKAGE);
 const facebook = appLink(business.facebook, FACEBOOK_ANDROID_PACKAGE);
@@ -80,11 +82,13 @@ export function Header() {
     <div className="c-header" style={{ display: 'contents' }}>
       <header className={headerClass}>
         <div className="container bar">
-          <a href="/#inicio" className="logo" onClick={(e) => go('inicio', e)} aria-label="AIRCONSOLUTION SERVICES SAC, ir al inicio">
+          <a href="/#inicio" className="logo" onClick={(e) => go('inicio', e)} aria-label="AIRCONSOLUTION SERVICES SAC, aire acondicionado en Lima. Ir al inicio">
             <img src="/images/logo.jpg" alt="" width={44} height={44} className="logo-mark" />
             <span className="logo-words">
-              <span className="logo-text"><span className="air">AIRCON</span><span className="con">SOLUTION</span></span>
-              <span className="logo-sub">SERVICES SAC</span>
+              <span className="logo-text"><span className="air">AIRCON</span><span className="con">SOLUTION</span> <span className="air">SERVICES SAC</span></span>
+              <span className="logo-sub" aria-hidden="true">
+                {[...SLOGAN].map((ch, i) => <span key={i}>{ch === ' ' ? '\u00a0' : ch}</span>)}
+              </span>
             </span>
           </a>
 
@@ -98,7 +102,7 @@ export function Header() {
 
           <div className="actions">
             <button
-              className="icon-btn"
+              className="icon-btn theme-btn"
               type="button"
               onClick={(e) => ui.toggleTheme({ x: e.clientX, y: e.clientY })}
               aria-label={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
@@ -149,6 +153,14 @@ export function Header() {
             <a href={facebook.href} target={facebook.newTab ? '_blank' : undefined} rel="noopener" aria-label="Facebook"><Icon name="facebook" size={20} /></a>
             <a href={business.instagram} target="_blank" rel="noopener" aria-label="Instagram"><Icon name="instagram" size={20} /></a>
             <a href={tiktok.href} target={tiktok.newTab ? '_blank' : undefined} rel="noopener" aria-label="TikTok"><Icon name="tiktok" size={20} /></a>
+            {/* En celulares el botón de tema vive aquí para dejar sitio al nombre en la barra. */}
+            <button
+              type="button"
+              onClick={(e) => ui.toggleTheme({ x: e.clientX, y: e.clientY })}
+              aria-label={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
+            >
+              <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
+            </button>
           </div>
         </div>
       </div>
