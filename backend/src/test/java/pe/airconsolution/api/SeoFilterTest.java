@@ -32,4 +32,14 @@ class SeoFilterTest {
         assertThat(get("/images/logo.jpg").getStatus()).isEqualTo(200);
         assertThat(get("/").getHeader("X-Robots-Tag")).isNull();
     }
+
+    @Test
+    void solutionPagesAreServedFromTheirOwnHtml() throws Exception {
+        MockHttpServletResponse res = get("/prueba-solucion");
+        assertThat(res.getStatus()).isEqualTo(200);
+        assertThat(res.getContentAsString()).contains("prueba-solucion");
+        assertThat(res.getHeader("X-Robots-Tag")).isNull();
+        // Con barra final también.
+        assertThat(get("/prueba-solucion/").getContentAsString()).contains("prueba-solucion");
+    }
 }

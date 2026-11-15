@@ -261,12 +261,181 @@ export const faqs = [
   },
 ];
 
+/* ===== Páginas de soluciones (una por servicio, para Google y para cotizar) ===== */
+
+export interface ServicePageData {
+  /** Dirección de la página, sin barra: airconsolutionsac.com/<slug> */
+  slug: string;
+  /** Texto corto para menús y tarjetas. */
+  label: string;
+  icon: string;
+  /** Servicio que se preselecciona al reservar una visita desde esta página. */
+  bookingService: ServiceId;
+  seoTitle: string;
+  seoDescription: string;
+  h1: string;
+  intro: string;
+  /** Qué incluye el servicio. */
+  includes: string[];
+  /** Fotos reales de trabajos (rutas de galleryItems, sin extensión). */
+  photos: string[];
+  /** Mensaje que se envía por WhatsApp al pedir la cotización. */
+  quoteMessage: string;
+}
+
+/** Tipos de clientes que atendemos. */
+export const sectors: { icon: string; label: string; text: string }[] = [
+  { icon: 'grid', label: 'Empresas y oficinas', text: 'Ambientes frescos para tu equipo y tus reuniones.' },
+  { icon: 'home', label: 'Edificios y condominios', text: 'Equipos de áreas comunes y de cada departamento.' },
+  { icon: 'star', label: 'Hoteles', text: 'Confort en habitaciones, recepción y salones.' },
+  { icon: 'snow', label: 'Restaurantes', text: 'Salón agradable y cocina con buena ventilación.' },
+  { icon: 'bolt', label: 'Negocios y tiendas', text: 'Clientes cómodos y equipos que no se detienen.' },
+  { icon: 'user', label: 'Casas', text: 'Instalación y mantenimiento para tu hogar.' },
+];
+
+/** AJUSTAR: distritos donde trabajan. */
+export const coverage: { zone: string; districts: string }[] = [
+  { zone: 'Lima Norte', districts: 'Los Olivos, San Martín de Porres, Comas, Independencia, Puente Piedra y Carabayllo' },
+  { zone: 'Lima Centro', districts: 'Cercado de Lima, Breña, Jesús María, Lince, La Victoria, San Isidro, Miraflores, San Borja y Surquillo' },
+  { zone: 'Lima Sur', districts: 'Santiago de Surco, Chorrillos, Barranco, San Juan de Miraflores y Villa El Salvador' },
+  { zone: 'Lima Este', districts: 'San Juan de Lurigancho, Ate, Santa Anita, La Molina y El Agustino' },
+  { zone: 'Callao', districts: 'Callao, Bellavista, La Perla, La Punta y Ventanilla' },
+];
+
+/** Pasos de atención para clientes que piden una cotización. */
+export const quoteProcess = [
+  { icon: 'whatsapp', title: 'Nos escribes', text: 'Pides tu cotización por WhatsApp, por teléfono o reservando una visita en línea.' },
+  { icon: 'search', title: 'Visita técnica', text: 'Revisamos los equipos y el lugar, y te explicamos qué necesitan.' },
+  { icon: 'download', title: 'Cotización por escrito', text: 'Recibes la propuesta con el detalle del trabajo, el plazo y el precio.' },
+  { icon: 'wrench', title: 'Ejecución', text: 'Trabajamos en el horario que te acomode, sin detener tu operación.' },
+  { icon: 'shield', title: 'Informe y garantía', text: 'Te entregamos el informe del trabajo, la factura y la garantía por escrito.' },
+];
+
+export const servicePages: ServicePageData[] = [
+  {
+    slug: 'mantenimiento-aire-acondicionado-empresas',
+    label: 'Mantenimiento para empresas',
+    icon: 'wrench',
+    bookingService: 'MANTENIMIENTO',
+    seoTitle: 'Mantenimiento de Aire Acondicionado para Empresas en Lima :: AIRCONSOLUTION',
+    seoDescription:
+      'Mantenimiento de aire acondicionado para empresas en Lima: oficinas, edificios, hoteles, restaurantes y tiendas. Preventivo y correctivo, informe técnico y factura.',
+    h1: 'Mantenimiento de aire acondicionado para empresas en Lima',
+    intro:
+      'Mantenemos los equipos de oficinas, edificios, hoteles, restaurantes y locales comerciales para que funcionen sin fallas, consuman menos energía y den un aire limpio a tus clientes y colaboradores. Programamos las visitas en el horario que menos afecte tu operación.',
+    includes: [
+      'Limpieza de filtros, evaporador y condensadora',
+      'Lavado a presión de serpentines',
+      'Revisión de presiones y carga de refrigerante',
+      'Medición de consumo eléctrico y ajuste de conexiones',
+      'Limpieza de bandeja y desagüe para evitar goteos',
+      'Informe técnico de cada equipo con recomendaciones',
+    ],
+    photos: [
+      'images/trabajos/tecnico-york',
+      'images/trabajos/mantenimiento-ductos',
+      'images/trabajos/cortina-aire',
+      'images/trabajos/lavado-condensadora-gree',
+      'images/trabajos/mantenimiento-equipo-ductos',
+      'images/trabajos/condensadora-lavado',
+    ],
+    quoteMessage: 'Hola AIRCONSOLUTION SERVICES SAC, quisiera una cotización de mantenimiento de aire acondicionado para mi empresa.',
+  },
+  {
+    slug: 'instalacion-reparacion-aire-acondicionado',
+    label: 'Instalación y reparación',
+    icon: 'snow',
+    bookingService: 'AIRE_ACONDICIONADO',
+    seoTitle: 'Instalación y Reparación de Aire Acondicionado en Lima :: AIRCONSOLUTION',
+    seoDescription:
+      'Instalación y reparación de aire acondicionado en Lima: split, multisplit, piso-techo, cassette y ductos. Diagnóstico de fallas, todas las marcas y garantía por escrito.',
+    h1: 'Instalación y reparación de equipos de aire acondicionado en Lima',
+    intro:
+      'Instalamos equipos nuevos con el cálculo de capacidad correcto para cada ambiente y reparamos los que ya tienes: si no enfría, gotea, hace ruido o muestra un código de error, encontramos la causa y la solucionamos. Trabajamos con todas las marcas.',
+    includes: [
+      'Visita técnica y cálculo de capacidad (BTU)',
+      'Instalación de split, multisplit, piso-techo, cassette y ductos',
+      'Tuberías de cobre, aislamiento y desagüe con acabado limpio',
+      'Vacío, prueba de fugas y puesta en marcha',
+      'Diagnóstico de fallas: no enfría, gotea, hace ruido o marca error',
+      'Cambio de compresor, tarjeta, capacitor o motor ventilador',
+    ],
+    photos: [
+      'images/gal_4',
+      'images/trabajos/condensadoras-coldpoint',
+      'images/trabajos/reparacion-compresor',
+      'images/trabajos/reparacion-coldpoint',
+      'images/trabajos/condensadora-mantenimiento',
+      'images/gal_6',
+    ],
+    quoteMessage: 'Hola AIRCONSOLUTION SERVICES SAC, quisiera una cotización de instalación o reparación de aire acondicionado.',
+  },
+  {
+    slug: 'refrigeracion-comercial',
+    label: 'Refrigeración comercial',
+    icon: 'drop',
+    bookingService: 'MANTENIMIENTO',
+    seoTitle: 'Mantenimiento de Refrigeración Comercial en Lima :: AIRCONSOLUTION',
+    seoDescription:
+      'Mantenimiento de sistemas de refrigeración comercial en Lima: cámaras de frío, conservadoras y vitrinas para restaurantes, hoteles, tiendas y negocios. Garantía por escrito.',
+    h1: 'Mantenimiento de sistemas de refrigeración comercial',
+    intro:
+      'Cuidamos los equipos de frío de restaurantes, hoteles, bodegas y tiendas para que mantengan la temperatura correcta y no pongas en riesgo tu mercadería. Hacemos mantenimiento preventivo y atendemos fallas cuando se presentan.',
+    includes: [
+      'Cámaras de frío, conservadoras y vitrinas refrigeradas',
+      'Limpieza de condensadores y evaporadores',
+      'Revisión de presiones, fugas y carga de refrigerante',
+      'Control de temperatura, termostatos y controladores',
+      'Revisión de compresores y motores ventiladores',
+      'Atención de fallas y emergencias',
+    ],
+    photos: [
+      'images/gal_3',
+      'images/trabajos/ventilador-condensadora',
+      'images/trabajos/lavado-condensadora-inverter',
+      'images/gal_1',
+      'images/gal_2',
+      'images/trabajos/condensadora-mantenimiento',
+    ],
+    quoteMessage: 'Hola AIRCONSOLUTION SERVICES SAC, quisiera una cotización de mantenimiento de refrigeración comercial.',
+  },
+  {
+    slug: 'contratos-mantenimiento-preventivo',
+    label: 'Contratos preventivos',
+    icon: 'calendar',
+    bookingService: 'MANTENIMIENTO',
+    seoTitle: 'Contratos de Mantenimiento Preventivo de Aire Acondicionado :: AIRCONSOLUTION',
+    seoDescription:
+      'Contratos de mantenimiento preventivo de aire acondicionado para oficinas, edificios y comercios en Lima. Visitas programadas, informe por equipo y factura electrónica.',
+    h1: 'Contratos de mantenimiento preventivo para oficinas, edificios y comercios',
+    intro:
+      'Con un contrato de mantenimiento te olvidas de llamar cada vez: programamos las visitas, llevamos el registro de cada equipo y te avisamos antes de que algo falle. Así alargas la vida de tus equipos, gastas menos en reparaciones y evitas que se detengan en plena temporada de calor.',
+    includes: [
+      'Inventario y diagnóstico inicial de todos tus equipos',
+      'Cronograma de visitas mensual, bimestral, trimestral o semestral',
+      'Informe técnico de cada equipo después de cada visita',
+      'Prioridad en la atención de fallas y emergencias',
+      'Tarifa acordada por periodo, con factura electrónica',
+      'Un mismo equipo técnico que ya conoce tus instalaciones',
+    ],
+    photos: [
+      'images/trabajos/limpieza-filtros',
+      'images/trabajos/split-limpieza',
+      'images/trabajos/mantenimiento-ductos',
+      'images/trabajos/tecnico-york',
+      'images/trabajos/condensadoras-coldpoint',
+      'images/gal_1',
+    ],
+    quoteMessage: 'Hola AIRCONSOLUTION SERVICES SAC, quisiera una cotización de un contrato de mantenimiento preventivo.',
+  },
+];
+
 /** Título y descripción de cada página para Google y las redes sociales. */
 export const pageSeo: Record<string, { title: string; description: string; noindex?: boolean }> = {
   '/': {
     title: 'AIRCONSOLUTION SERVICES SAC :: Aire Acondicionado en Lima',
     description:
-      'Aire Acondicionado en Lima: instalación, mantenimiento y reparación de equipos y electricidad. Garantía por escrito, emergencias 24/7 y reserva en línea.',
+      'Aire Acondicionado en Lima: soluciones corporativas integrales para empresas, edificios, hoteles, restaurantes, casas y negocios. Instalación, mantenimiento y reparación.',
   },
   '/seguimiento': {
     title: 'Seguir mi reserva | AIRCONSOLUTION SERVICES SAC',
@@ -281,4 +450,5 @@ export const pageSeo: Record<string, { title: string; description: string; noind
     description: 'Panel interno de administración.',
     noindex: true,
   },
+  ...Object.fromEntries(servicePages.map((p) => [`/${p.slug}`, { title: p.seoTitle, description: p.seoDescription }])),
 };

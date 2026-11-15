@@ -10,6 +10,7 @@ import { Gallery } from '../sections/Gallery';
 import { Hero } from '../sections/Hero';
 import { Process } from '../sections/Process';
 import { Services } from '../sections/Services';
+import { Solutions } from '../sections/Solutions';
 import { Testimonials } from '../sections/Testimonials';
 
 export function HomePage() {
@@ -26,6 +27,7 @@ export function HomePage() {
       <Hero />
       <BrandsStats />
       <Services />
+      <Solutions />
       <Process />
       <Gallery />
       <About />

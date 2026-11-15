@@ -6,6 +6,7 @@ import { Footer } from './layout/Footer';
 import { Header } from './layout/Header';
 import { Preloader } from './layout/Preloader';
 import { Toasts } from './layout/Toasts';
+import { servicePages } from './core/site.data';
 import { HomePage } from './pages/HomePage';
 import { useGlobalEffects } from './shared/effects';
 import { applySeo } from './shared/seo';
@@ -14,6 +15,7 @@ import { applySeo } from './shared/seo';
 const TrackingPage = lazy(() => import('./pages/TrackingPage').then((m) => ({ default: m.TrackingPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
 const AdminPage = lazy(() => import('./pages/AdminPage').then((m) => ({ default: m.AdminPage })));
+const ServicePage = lazy(() => import('./pages/ServicePage').then((m) => ({ default: m.ServicePage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 
 /** SEO de cada página (título, descripción, canónica) y vuelta arriba al cambiar de página. */
@@ -41,6 +43,9 @@ export function App() {
             <Route path="/seguimiento" element={<TrackingPage />} />
             <Route path="/privacidad" element={<PrivacyPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            {servicePages.map((p) => (
+              <Route key={p.slug} path={`/${p.slug}`} element={<ServicePage page={p} />} />
+            ))}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

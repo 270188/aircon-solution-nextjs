@@ -5,9 +5,25 @@
  *    (React lo reemplaza al cargar).
  *  - sitemap.xml con las fotos de trabajos para Google Imágenes.
  */
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import type { Plugin } from 'vite';
 
-import { SITE_URL, business, checklist, faqs, galleryItems, pageSeo, services } from './src/core/site.data';
+import {
+  SITE_URL,
+  business,
+  checklist,
+  coverage,
+  faqs,
+  galleryItems,
+  pageSeo,
+  quoteProcess,
+  sectors,
+  servicePages,
+  services,
+  type ServicePageData,
+} from './src/core/site.data';
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const abs = (path: string) => `${SITE_URL}/${path.replace(/^\//, '')}`;
@@ -89,6 +105,10 @@ function fallbackContent(): string {
       <ul>
         ${services.map((s) => `<li><h3>${esc(s.title)}</h3><p>${esc(s.description)}</p></li>`).join('\n        ')}
       </ul>
+      <h2>Soluciones corporativas integrales</h2>
+      <ul>
+        ${servicePages.map((p) => `<li><a href="/${p.slug}">${esc(p.h1)}</a></li>`).join('\n        ')}
+      </ul>
       <h2>¿Por qué elegirnos?</h2>
       <ul>${checklist.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
       <h2>Preguntas frecuentes</h2>
@@ -103,6 +123,93 @@ function fallbackContent(): string {
       </address>
       <nav><a href="/seguimiento">Seguir mi reserva</a> · <a href="/privacidad">Política de privacidad</a></nav>
     </main>`;
+}
+
+const captionOf = (image: string) => galleryItems.find((g) => g.image === image)?.caption ?? business.name;
+
+function servicePageSitemapEntry(p: ServicePageData): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const imgs = p.photos
+    .map((i) => `    <image:image><image:loc>${abs(`${i}.jpg`)}</image:loc><image:title>${esc(captionOf(i))}</image:title></image:image>`)
+    .join('\n');
+  return `  <url>
+    <loc>${SITE_URL}/${p.slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+${imgs}
+  </url>`;
+}
+
+/** Datos estructurados propios de una página de solución: el servicio y la ruta de navegación. */
+function servicePageData(p: ServicePageData): string {
+  const url = `${SITE_URL}/${p.slug}`;
+  const graph = [
+    {
+      '@type': 'Service',
+      '@id': `${url}#servicio`,
+      name: p.h1,
+      description: p.seoDescription,
+      url,
+      serviceType: p.label,
+      provider: { '@id': `${SITE_URL}/#negocio` },
+      areaServed: [{ '@type': 'City', name: 'Lima' }, { '@type': 'City', name: 'Callao' }],
+      audience: { '@type': 'BusinessAudience', audienceType: sectors.map((s) => s.label).join(', ') },
+      image: p.photos.map((i) => abs(`${i}.jpg`)),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: p.label, item: url },
+      ],
+    },
+  ];
+  return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }, null, 2).replace(/</g, '\\u003c');
+}
+
+/** Contenido HTML de respaldo de una página de solución. */
+function servicePageFallback(p: ServicePageData): string {
+  return `
+    <main class="seo-fallback">
+      <p><a href="/">Inicio</a> › ${esc(p.label)}</p>
+      <h1>${esc(p.h1)}</h1>
+      <p>${esc(p.intro)}</p>
+      <p><a href="https://wa.me/${business.phone.replace('+', '')}">Solicitar cotización por WhatsApp</a> · <a href="tel:${business.phone}">${esc(business.phoneDisplay)}</a></p>
+      <h2>Atendemos a</h2>
+      <ul>${sectors.map((s) => `<li>${esc(s.label)}: ${esc(s.text)}</li>`).join('')}</ul>
+      <h2>¿Qué incluye?</h2>
+      <ul>${p.includes.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+      <h2>Trabajos reales de nuestro equipo</h2>
+      <ul>${p.photos.map((i) => `<li><img src="/${i}.jpg" alt="${esc(captionOf(i))}" loading="lazy" width="600" height="750"></li>`).join('')}</ul>
+      <h2>Proceso de atención</h2>
+      <ol>${quoteProcess.map((s) => `<li>${esc(s.title)}: ${esc(s.text)}</li>`).join('')}</ol>
+      <h2>Cobertura en Lima y Callao</h2>
+      <ul>${coverage.map((c) => `<li>${esc(c.zone)}: ${esc(c.districts)}</li>`).join('')}</ul>
+      <h2>Otras soluciones</h2>
+      <ul>${servicePages.filter((o) => o.slug !== p.slug).map((o) => `<li><a href="/${o.slug}">${esc(o.label)}</a></li>`).join('')}</ul>
+      <address>${esc(business.name)} · RUC ${business.ruc} · ${esc(business.address)}</address>
+    </main>`;
+}
+
+/** A partir del index.html ya compilado, crea <slug>.html con el título, la descripción y el contenido de cada solución. */
+function writeServicePages(outDir: string): void {
+  const home = pageSeo['/'];
+  const base = readFileSync(resolve(outDir, 'index.html'), 'utf8');
+  for (const p of servicePages) {
+    const url = `${SITE_URL}/${p.slug}`;
+    const html = base
+      .replaceAll(esc(home.title), esc(p.seoTitle))
+      .replaceAll(esc(home.description), esc(p.seoDescription))
+      .replace(`<link rel="canonical" href="${SITE_URL}/">`, `<link rel="canonical" href="${url}">`)
+      .replace(`<meta property="og:url" content="${SITE_URL}/">`, `<meta property="og:url" content="${url}">`)
+      .replace(/<main class="seo-fallback">[\s\S]*?<\/main>/, () => servicePageFallback(p).trim())
+      .replace('</head>', () => `  <script type="application/ld+json">\n${servicePageData(p)}\n  </script>\n</head>`);
+    for (const must of [p.seoTitle, url, p.h1]) {
+      if (!html.includes(esc(must))) throw new Error(`SEO: falta "${must}" en ${p.slug}.html`);
+    }
+    writeFileSync(resolve(outDir, `${p.slug}.html`), html);
+  }
 }
 
 function sitemap(): string {
@@ -124,6 +231,7 @@ function sitemap(): string {
     <priority>1.0</priority>
 ${imageTags}
   </url>
+${servicePages.map(servicePageSitemapEntry).join('\n')}
   <url><loc>${SITE_URL}/seguimiento</loc><lastmod>${today}</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
   <url><loc>${SITE_URL}/privacidad</loc><lastmod>${today}</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
 </urlset>
@@ -132,8 +240,17 @@ ${imageTags}
 
 export function seoPlugin(): Plugin {
   const home = pageSeo['/'];
+  let outDir = '';
+  let isBuild = false;
   return {
     name: 'airconsolution-seo',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir);
+      isBuild = config.command === 'build';
+    },
+    closeBundle() {
+      if (isBuild) writeServicePages(outDir);
+    },
     transformIndexHtml(html) {
       return html
         .replaceAll('%SEO_TITLE%', esc(home.title))

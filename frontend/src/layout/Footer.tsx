@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router';
 
-import { business, navLinks, services, whatsappLink, type ServiceId } from '../core/site.data';
+import { business, navLinks, servicePages, whatsappLink } from '../core/site.data';
 import { ui } from '../core/ui';
 import { FACEBOOK_ANDROID_PACKAGE, TIKTOK_ANDROID_PACKAGE, appLink } from '../shared/appLink';
 import { delay } from '../shared/effects';
@@ -19,11 +19,6 @@ export function Footer() {
     e.preventDefault();
     if (location.pathname !== '/') navigate({ pathname: '/', hash: id });
     else ui.scrollTo(id);
-  };
-
-  const book = (id: ServiceId, e: React.MouseEvent) => {
-    ui.setPreselectedService(id);
-    go('reservar', e);
   };
 
   return (
@@ -68,11 +63,12 @@ export function Footer() {
           </div>
 
           <div data-reveal="up" style={delay(160)}>
-            <h4>Servicios</h4>
+            <h4>Soluciones</h4>
             <ul>
-              {services.map((s) => (
-                <li key={s.id}><a href="/#reservar" onClick={(e) => book(s.id, e)}>{s.title}</a></li>
+              {servicePages.map((p) => (
+                <li key={p.slug}><Link to={`/${p.slug}`}>{p.label}</Link></li>
               ))}
+              <li><a href="/#servicios" onClick={(e) => go('servicios', e)}>Todos los servicios</a></li>
             </ul>
           </div>
 
