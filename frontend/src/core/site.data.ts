@@ -86,13 +86,13 @@ export const services: ServiceItem[] = [
   },
   {
     id: 'REPARACION',
-    title: 'Reparación de Equipos',
-    short: 'Diagnóstico preciso y repuestos originales.',
+    title: 'Mantenimiento de Línea Blanca',
+    short: 'Refrigeradoras, lavadoras, secadoras y cocinas.',
     description:
-      'Diagnosticamos y solucionamos averías en equipos eléctricos y de climatización con un servicio rápido y eficiente.',
+      'Limpiamos, revisamos y reparamos refrigeradoras, congeladoras, lavadoras, secadoras, cocinas y hornos para que funcionen bien y duren más.',
     image: 'images/svc_rep',
     icon: 'wrench',
-    features: ['Diagnóstico el mismo día', 'Repuestos originales', 'Garantía'],
+    features: ['Refrigeradoras y congeladoras', 'Lavadoras y secadoras', 'Cocinas y hornos'],
   },
   {
     id: 'ELECTRICIDAD',
@@ -116,13 +116,13 @@ export const services: ServiceItem[] = [
   },
   {
     id: 'BOMBAS',
-    title: 'Bombas de Agua',
-    short: 'Instalación y mantenimiento de sistemas de bombeo.',
+    title: 'Servicio de Gasfitería',
+    short: 'Bombas de agua, tuberías y fugas.',
     description:
-      'Instalación y mantenimiento de bombas de agua para asegurar un suministro continuo y un óptimo rendimiento.',
+      'Instalamos y mantenemos bombas de agua y presurizadores, reparamos fugas y tuberías, y dejamos tus instalaciones sanitarias funcionando sin problemas.',
     image: 'images/svc_bomba',
     icon: 'drop',
-    features: ['Bombas y presurizadores', 'Tableros de control', 'Mantenimiento'],
+    features: ['Bombas de agua y presurizadores', 'Reparación de fugas y tuberías', 'Tanques y cisternas'],
   },
 ];
 

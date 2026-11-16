@@ -4,10 +4,10 @@ package pe.airconsolution.api.booking;
 public enum ServiceType {
     AIRE_ACONDICIONADO("Instalación de Aire Acondicionado"),
     MANTENIMIENTO("Mantenimiento Preventivo"),
-    REPARACION("Reparación de Equipos"),
+    REPARACION("Mantenimiento de Línea Blanca"),
     ELECTRICIDAD("Instalaciones Eléctricas"),
     ESTRUCTURAS("Estructuras Metálicas"),
-    BOMBAS("Instalación de Bombas de Agua"),
+    BOMBAS("Servicio de Gasfitería"),
     EMERGENCIA("Emergencia 24/7");
 
     private final String label;
