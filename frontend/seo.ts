@@ -28,7 +28,7 @@ import {
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const abs = (path: string) => `${SITE_URL}/${path.replace(/^\//, '')}`;
 
-function structuredData(): string {
+function structuredData(withFaq = true): string {
   const id = `${SITE_URL}/#negocio`;
   const graph = [
     {
@@ -92,7 +92,7 @@ function structuredData(): string {
     },
   ];
   // "<" escapado para que ningún texto pueda cerrar la etiqueta <script>.
-  return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }, null, 2).replace(/</g, '\\u003c');
+  return JSON.stringify({ '@context': 'https://schema.org', '@graph': withFaq ? graph : graph.filter((g) => g['@type'] !== 'FAQPage') }, null, 2).replace(/</g, '\\u003c');
 }
 
 /** Contenido principal en HTML simple: lo leen los buscadores y lo ve quien no tiene JavaScript. */
@@ -217,6 +217,8 @@ function writePages(outDir: string): void {
     const url = `${SITE_URL}${path}`;
     const service = servicePages.find((p) => `/${p.slug}` === path);
     let html = base
+      // Las preguntas frecuentes solo se ven en la portada: su marcado va solo ahí.
+      .replace(/(<script type="application\/ld\+json">)[\s\S]*?(<\/script>)/, (_m, open, close) => `${open}\n${structuredData(false)}\n  ${close}`)
       .replaceAll(esc(home.title), esc(seo.title))
       .replaceAll(esc(home.description), esc(seo.description))
       .replace(`<link rel="canonical" href="${SITE_URL}/">`, `<link rel="canonical" href="${url}">`)
