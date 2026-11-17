@@ -2,6 +2,7 @@ import { services } from '../core/site.data';
 import { ui } from '../core/ui';
 import { delay } from '../shared/effects';
 import { Icon } from '../shared/Icon';
+import { photoSrcSet } from '../shared/photo';
 
 export function Services() {
   return (
@@ -23,7 +24,7 @@ export function Services() {
               <article key={s.id} className="svc" data-tilt="7" data-reveal="up" style={delay((i % 3) * 120)}>
                 <div className="media">
                   <picture>
-                    <source srcSet={`${s.image}.webp`} type="image/webp" />
+                    <source srcSet={photoSrcSet(s.image)} sizes="(min-width: 1080px) 380px, (min-width: 720px) 45vw, 92vw" type="image/webp" />
                     <img src={`${s.image}.jpg`} alt={s.title} loading="lazy" width={600} height={400} />
                   </picture>
                   <span className="num">0{i + 1}</span>

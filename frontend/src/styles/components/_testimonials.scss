@@ -22,10 +22,12 @@
     .arrow { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--border);
       background: var(--bg-elevated); transition: all .3s var(--ease-spring); }
     .arrow:hover { background: var(--blue-500); color: #fff; border-color: transparent; transform: scale(1.08); }
-    .dots { display: flex; gap: 8px; }
-    .dots button { width: 10px; height: 10px; border-radius: 10px; background: var(--border); position: relative; overflow: hidden;
+    .dots { display: flex; gap: 0; }
+    /* Borde transparente: el punto se ve de 10 px pero se puede tocar en 24 px. */
+    .dots button { width: 24px; height: 24px; border: 7px solid transparent; background-clip: padding-box; border-radius: 12px;
+      background-color: var(--border); position: relative; overflow: hidden; box-sizing: border-box;
       transition: width .5s var(--ease-out); }
-    .dots button.active { width: 44px; }
+    .dots button.active { width: 58px; }
     .bar { position: absolute; inset: 0; background: var(--grad-ice); transform-origin: left; animation: fill--testimonials 6s linear forwards; }
     .bar.paused { animation-play-state: paused; }
     @keyframes fill--testimonials { from { transform: scaleX(0); } }

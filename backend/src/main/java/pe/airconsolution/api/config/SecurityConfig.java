@@ -32,7 +32,7 @@ public class SecurityConfig {
     /** El hash corresponde al atributo onload="this.media='all'" que Angular genera para cargar el CSS. */
     static final String CONTENT_SECURITY_POLICY = "default-src 'self'; "
             + "script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='; "
-            + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; "
+            + "style-src 'self' 'unsafe-inline'; font-src 'self'; "
             + "img-src 'self' data: blob:; connect-src 'self'; "
             + "frame-src https://maps.google.com https://www.google.com; base-uri 'self'; form-action 'self'; "
             + "object-src 'none'; frame-ancestors 'none'";

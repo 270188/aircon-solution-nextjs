@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
-import { galleryFilters, galleryItems, type GalleryCategory } from '../core/site.data';
+import { galleryFilters, galleryItems, type GalleryCategory, business } from '../core/site.data';
 import { delay } from '../shared/effects';
 import { Icon } from '../shared/Icon';
+import { photoSrcSet } from '../shared/photo';
 
 type Filter = GalleryCategory | 'todos';
 
@@ -91,8 +92,8 @@ export function Gallery() {
                 data-reveal="zoom"
               >
                 <picture>
-                  <source srcSet={`${item.image}.webp`} type="image/webp" />
-                  <img src={`${item.image}.jpg`} alt={item.caption} loading="lazy" />
+                  <source srcSet={photoSrcSet(item.image)} sizes="(min-width: 960px) 300px, 50vw" type="image/webp" />
+                  <img src={`${item.image}.jpg`} alt={`${item.caption} en Lima, trabajo de ${business.name}`} loading="lazy" />
                 </picture>
                 <span className="cap">
                   <span>{item.caption}</span>

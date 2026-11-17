@@ -20,8 +20,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *  - /admin lleva "X-Robots-Tag: noindex" para que el panel nunca aparezca en Google.
  *  - Las rutas que no existen responden 404 (con la página de React que muestra "no encontrada"),
  *    así Google no las indexa como páginas duplicadas de la portada.
- *  - Las páginas de soluciones (/refrigeracion-comercial, ...) se generan al compilar como
- *    static/<ruta>.html, con su propio título y descripción; aquí se entregan con código 200.
+ *  - Cada página (/refrigeracion-comercial, /privacidad, ...) se genera al compilar como
+ *    static/<ruta>.html, con su propio título y descripción; aquí se entrega con código 200.
+ *  - Una sola dirección por página: /ruta/, /ruta.html e /index.html redirigen (301) a la limpia.
  */
 @Component
 public class SeoFilter extends OncePerRequestFilter {
@@ -45,7 +46,16 @@ public class SeoFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String path = normalize(request.getRequestURI());
+        String uri = request.getRequestURI();
+        String canonical = canonicalPath(uri);
+        if (!canonical.equals(uri)) {
+            // Una sola dirección por página: /pagina/, /pagina.html e /index.html llevan a la dirección limpia.
+            String query = request.getQueryString();
+            response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+            response.setHeader("Location", query == null ? canonical : canonical + "?" + query);
+            return;
+        }
+        String path = normalize(uri);
         if (path.equals("/admin")) {
             response.setHeader("X-Robots-Tag", "noindex, nofollow");
         }
@@ -73,6 +83,20 @@ public class SeoFilter extends OncePerRequestFilter {
         try (InputStream in = html.getInputStream()) {
             in.transferTo(response.getOutputStream());
         }
+    }
+
+    /** La dirección limpia de una página, o la misma si ya lo es (o si es un archivo). */
+    static String canonicalPath(String uri) {
+        if (uri.equals("/index.html")) {
+            return "/";
+        }
+        if (uri.length() > 1 && uri.endsWith("/")) {
+            return uri.replaceAll("/+$", "").isEmpty() ? "/" : uri.replaceAll("/+$", "");
+        }
+        if (uri.endsWith(".html") && SLUG.matcher(uri.substring(0, uri.length() - 5)).matches()) {
+            return uri.substring(0, uri.length() - 5);
+        }
+        return uri;
     }
 
     private static String normalize(String path) {

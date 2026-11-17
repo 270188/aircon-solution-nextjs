@@ -39,7 +39,27 @@ class SeoFilterTest {
         assertThat(res.getStatus()).isEqualTo(200);
         assertThat(res.getContentAsString()).contains("prueba-solucion");
         assertThat(res.getHeader("X-Robots-Tag")).isNull();
-        // Con barra final también.
-        assertThat(get("/prueba-solucion/").getContentAsString()).contains("prueba-solucion");
+        assertThat(res.getHeader("Cache-Control")).isEqualTo("no-cache");
+    }
+
+    @Test
+    void duplicateAddressesRedirectToTheCleanOne() throws Exception {
+        assertRedirect("/prueba-solucion/", "/prueba-solucion");
+        assertRedirect("/prueba-solucion.html", "/prueba-solucion");
+        assertRedirect("/index.html", "/");
+        MockHttpServletRequest req = new MockHttpServletRequest("GET", "/seguimiento/");
+        req.setQueryString("codigo=ABC");
+        MockHttpServletResponse res = new MockHttpServletResponse();
+        filter.doFilter(req, res, new MockFilterChain());
+        assertThat(res.getHeader("Location")).isEqualTo("/seguimiento?codigo=ABC");
+        // Los archivos no se tocan.
+        assertThat(get("/images/logo.jpg").getStatus()).isEqualTo(200);
+        assertThat(get("/").getStatus()).isEqualTo(200);
+    }
+
+    private void assertRedirect(String from, String to) throws Exception {
+        MockHttpServletResponse res = get(from);
+        assertThat(res.getStatus()).isEqualTo(301);
+        assertThat(res.getHeader("Location")).isEqualTo(to);
     }
 }

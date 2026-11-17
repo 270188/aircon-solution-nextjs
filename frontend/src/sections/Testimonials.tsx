@@ -70,7 +70,7 @@ export function Testimonials() {
                 aria-roledescription="testimonio"
                 aria-label={`${i + 1} de ${testimonials.length}`}
               >
-                <div className="stars" aria-label={`${t.rating} de 5 estrellas`}>
+                <div className="stars" role="img" aria-label={`${t.rating} de 5 estrellas`}>
                   {[1, 2, 3, 4, 5].map((s) => (
                     <span key={s} style={{ ['--s' as string]: s }}><Icon name="star" size={20} /></span>
                   ))}

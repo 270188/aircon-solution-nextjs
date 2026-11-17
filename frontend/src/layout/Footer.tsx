@@ -30,7 +30,7 @@ export function Footer() {
         <div className="container grid">
           <div className="brand" data-reveal="up">
             <div className="logo">
-              <img src="/images/logo.jpg" alt="" width={52} height={52} />
+              <img src="/images/logo-128.webp" alt="" width={52} height={52} />
               <div>
                 <strong><span>AIRCON</span><span className="con">SOLUTION</span></strong>
                 <small>SERVICES SAC</small>
@@ -53,7 +53,7 @@ export function Footer() {
           </div>
 
           <div data-reveal="up" style={delay(80)}>
-            <h4>Navegación</h4>
+            <h2 className="f-title">Navegación</h2>
             <ul>
               {navLinks.map((l) => (
                 <li key={l.id}><a href={`/#${l.id}`} onClick={(e) => go(l.id, e)}>{l.label}</a></li>
@@ -63,7 +63,7 @@ export function Footer() {
           </div>
 
           <div data-reveal="up" style={delay(160)}>
-            <h4>Soluciones</h4>
+            <h2 className="f-title">Soluciones</h2>
             <ul>
               {servicePages.map((p) => (
                 <li key={p.slug}><Link to={`/${p.slug}`}>{p.label}</Link></li>
@@ -73,7 +73,7 @@ export function Footer() {
           </div>
 
           <div data-reveal="up" style={delay(240)}>
-            <h4>Contacto</h4>
+            <h2 className="f-title">Contacto</h2>
             <ul className="contact">
               <li><Icon name="phone" size={18} /><a href={`tel:${business.phone}`}>{business.phoneDisplay}</a></li>
               <li><Icon name="phone" size={18} /><a href={`tel:${business.phone2}`}>{business.phone2Display}</a></li>

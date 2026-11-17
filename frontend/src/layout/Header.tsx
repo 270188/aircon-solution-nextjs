@@ -82,8 +82,8 @@ export function Header() {
     <div className="c-header" style={{ display: 'contents' }}>
       <header className={headerClass}>
         <div className="container bar">
-          <a href="/#inicio" className="logo" onClick={(e) => go('inicio', e)} aria-label="AIRCONSOLUTION SERVICES SAC, aire acondicionado en Lima. Ir al inicio">
-            <img src="/images/logo.jpg" alt="" width={44} height={44} className="logo-mark" />
+          <a href="/#inicio" className="logo" onClick={(e) => go('inicio', e)} title="Ir al inicio">
+            <img src="/images/logo-128.webp" alt="" width={44} height={44} className="logo-mark" />
             <span className="logo-words">
               <span className="logo-text"><span className="air">AIRCON</span><span className="con">SOLUTION</span> <span className="air">SERVICES SAC</span></span>
               <span className="logo-sub" aria-hidden="true">

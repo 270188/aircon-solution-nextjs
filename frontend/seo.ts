@@ -181,7 +181,7 @@ function servicePageFallback(p: ServicePageData): string {
       <h2>¿Qué incluye?</h2>
       <ul>${p.includes.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
       <h2>Trabajos reales de nuestro equipo</h2>
-      <ul>${p.photos.map((i) => `<li><img src="/${i}.jpg" alt="${esc(captionOf(i))}" loading="lazy" width="600" height="750"></li>`).join('')}</ul>
+      <ul>${p.photos.map((i) => `<li>${esc(captionOf(i))}</li>`).join('')}</ul>
       <h2>Proceso de atención</h2>
       <ol>${quoteProcess.map((s) => `<li>${esc(s.title)}: ${esc(s.text)}</li>`).join('')}</ol>
       <h2>Cobertura en Lima y Callao</h2>
@@ -192,23 +192,51 @@ function servicePageFallback(p: ServicePageData): string {
     </main>`;
 }
 
-/** A partir del index.html ya compilado, crea <slug>.html con el título, la descripción y el contenido de cada solución. */
-function writeServicePages(outDir: string): void {
+/** Contenido HTML de respaldo de las páginas simples (seguimiento, privacidad, panel). */
+function simplePageFallback(path: string): string {
+  const seo = pageSeo[path];
+  return `
+    <main class="seo-fallback">
+      <p><a href="/">Inicio</a> › ${esc(seo.title.split(' | ')[0])}</p>
+      <h1>${esc(seo.title.split(' | ')[0])}</h1>
+      <p>${esc(seo.description)}</p>
+      <address>${esc(business.name)} · ${esc(business.phoneDisplay)} · ${esc(business.email)}</address>
+    </main>`;
+}
+
+/**
+ * A partir del index.html ya compilado, crea un HTML por página (<ruta>.html) con su propio título,
+ * descripción, URL canónica, imagen para compartir y contenido de respaldo.
+ */
+function writePages(outDir: string): void {
   const home = pageSeo['/'];
   const base = readFileSync(resolve(outDir, 'index.html'), 'utf8');
-  for (const p of servicePages) {
-    const url = `${SITE_URL}/${p.slug}`;
-    const html = base
-      .replaceAll(esc(home.title), esc(p.seoTitle))
-      .replaceAll(esc(home.description), esc(p.seoDescription))
+  const homeImage = `${SITE_URL}/images/hero.jpg`;
+  for (const path of Object.keys(pageSeo).filter((p) => p !== '/')) {
+    const seo = pageSeo[path];
+    const url = `${SITE_URL}${path}`;
+    const service = servicePages.find((p) => `/${p.slug}` === path);
+    let html = base
+      .replaceAll(esc(home.title), esc(seo.title))
+      .replaceAll(esc(home.description), esc(seo.description))
       .replace(`<link rel="canonical" href="${SITE_URL}/">`, `<link rel="canonical" href="${url}">`)
       .replace(`<meta property="og:url" content="${SITE_URL}/">`, `<meta property="og:url" content="${url}">`)
-      .replace(/<main class="seo-fallback">[\s\S]*?<\/main>/, () => servicePageFallback(p).trim())
-      .replace('</head>', () => `  <script type="application/ld+json">\n${servicePageData(p)}\n  </script>\n</head>`);
-    for (const must of [p.seoTitle, url, p.h1]) {
-      if (!html.includes(esc(must))) throw new Error(`SEO: falta "${must}" en ${p.slug}.html`);
+      .replace(/<main class="seo-fallback">[\s\S]*?<\/main>/, () => (service ? servicePageFallback(service) : simplePageFallback(path)).trim());
+    if (service) {
+      const image = abs(`${service.photos[0]}.jpg`);
+      html = html
+        .replaceAll(`content="${homeImage}"`, `content="${image}"`)
+        .replace(/<meta property="og:image:(width|height)"[^>]*>\s*/g, '')
+        .replace(/(<meta property="og:image:alt" content=")[^"]*"/, `$1${esc(captionOf(service.photos[0]))}"`)
+        .replace('</head>', () => `  <script type="application/ld+json">\n${servicePageData(service)}\n  </script>\n</head>`);
     }
-    writeFileSync(resolve(outDir, `${p.slug}.html`), html);
+    if (seo.noindex) {
+      html = html.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex, nofollow">');
+    }
+    for (const must of [seo.title, url]) {
+      if (!html.includes(esc(must))) throw new Error(`SEO: falta "${must}" en ${path}.html`);
+    }
+    writeFileSync(resolve(outDir, `${path.slice(1)}.html`), html);
   }
 }
 
@@ -249,7 +277,7 @@ export function seoPlugin(): Plugin {
       isBuild = config.command === 'build';
     },
     closeBundle() {
-      if (isBuild) writeServicePages(outDir);
+      if (isBuild) writePages(outDir);
     },
     transformIndexHtml(html) {
       return html

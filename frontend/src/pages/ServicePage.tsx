@@ -14,13 +14,14 @@ import {
 import { ui } from '../core/ui';
 import { delay } from '../shared/effects';
 import { Icon } from '../shared/Icon';
+import { photoSrcSet } from '../shared/photo';
 
 const captionOf = (image: string) => galleryItems.find((g) => g.image === image)?.caption ?? business.name;
 
 function Photo({ image, eager = false }: { image: string; eager?: boolean }) {
   return (
     <picture>
-      <source srcSet={`/${image}.webp`} type="image/webp" />
+      <source srcSet={photoSrcSet(image)} sizes="(min-width: 960px) 420px, 50vw" type="image/webp" />
       <img src={`/${image}.jpg`} alt={captionOf(image)} loading={eager ? 'eager' : 'lazy'} width={600} height={750} />
     </picture>
   );
