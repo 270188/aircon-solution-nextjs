@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { api, describeError, type BookingStatus, type BookingTracking } from '../core/api';
+import { api, describeError, type BookingStatus, type BookingTracking, wakeApi } from '../core/api';
 import { whatsappLink } from '../core/site.data';
 import { longDate, prettyTime } from '../shared/dates';
 import { Icon } from '../shared/Icon';
@@ -60,7 +60,7 @@ export function TrackingPage() {
           <p>Ingresa el código que recibiste al reservar (por ejemplo, ACS-7KQ2MX).</p>
         </div>
 
-        <form className="search card" onSubmit={(e) => { e.preventDefault(); search(); }}>
+        <form className="search card" onSubmit={(e) => { e.preventDefault(); search(); }} onFocusCapture={() => void wakeApi()}>
           <label htmlFor="code" className="sr-only">Código de reserva</label>
           <Icon name="ticket" size={22} />
           <input id="code" name="code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ACS-XXXXXX" autoComplete="off" maxLength={12} required />

@@ -240,6 +240,17 @@ function writePages(outDir: string): void {
     }
     writeFileSync(resolve(outDir, `${path.slice(1)}.html`), html);
   }
+
+  // Página para direcciones que no existen (Netlify la sirve con código 404).
+  const notFound = base
+    .replace(/(<script type="application\/ld\+json">)[\s\S]*?(<\/script>)\s*/, '')
+    .replaceAll(esc(home.title), 'Página no encontrada | AIRCONSOLUTION SERVICES SAC')
+    .replaceAll(esc(home.description), 'La página que buscas no existe.')
+    .replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex, nofollow">')
+    .replace(/<link rel="canonical"[^>]*>\s*/, '')
+    .replace(/<main class="seo-fallback">[\s\S]*?<\/main>/, () =>
+      `<main class="seo-fallback"><h1>Página no encontrada</h1><p><a href="/">Volver al inicio</a></p></main>`);
+  writeFileSync(resolve(outDir, '404.html'), notFound);
 }
 
 function sitemap(): string {

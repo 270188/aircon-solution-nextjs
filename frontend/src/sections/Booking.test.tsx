@@ -28,8 +28,10 @@ describe('Booking', () => {
   });
 
   it('avanza del servicio a la fecha y consulta la disponibilidad', async () => {
-    const fetchMock = vi.fn(async (url: URL) => {
-      const date = url.searchParams.get('date');
+    const fetchMock = vi.fn(async (input: URL | string) => {
+      // Primero se confirma que el servidor está encendido.
+      if (String(input).includes('/actuator/health')) return new Response('{"status":"UP"}', { status: 200 });
+      const date = (input as URL).searchParams.get('date');
       return new Response(JSON.stringify({ date, open: true, slots: [{ time: '09:00', available: true }, { time: '10:00', available: false }] }), { status: 200 });
     });
     vi.stubGlobal('fetch', fetchMock);
@@ -39,7 +41,9 @@ describe('Booking', () => {
     await act(async () => {
       fireEvent.click(container.querySelector('.day:not([disabled])') as HTMLButtonElement);
     });
-    expect(String(fetchMock.mock.calls[0][0])).toContain('/api/v1/bookings/availability');
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
+    expect(urls[0]).toContain('/actuator/health');
+    expect(urls.some((u) => u.includes('/api/v1/bookings/availability'))).toBe(true);
 
     const slots = container.querySelectorAll<HTMLButtonElement>('.slot');
     expect(slots.length).toBe(2);

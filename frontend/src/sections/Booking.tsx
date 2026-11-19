@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
-import { api, describeError, ApiError, type BookingCreated, type SlotAvailability } from '../core/api';
+import { api, describeError, ApiError, type BookingCreated, type SlotAvailability, wakeApi } from '../core/api';
 import { bookableServices, services, whatsappLink, type ServiceId } from '../core/site.data';
 import { ui, useUi } from '../core/ui';
 import { launchConfetti } from '../shared/confetti';
@@ -216,7 +216,7 @@ export function Booking() {
 
   return (
     <div className="c-booking" style={{ display: 'contents' }}>
-      <section className="section booking" id="reservar" aria-labelledby="booking-title">
+      <section className="section booking" id="reservar" aria-labelledby="booking-title" onPointerDownCapture={() => void wakeApi()} onFocusCapture={() => void wakeApi()}>
         <div className="bg-grid" aria-hidden="true"></div>
         <div className="container">
           <div className="section-head">

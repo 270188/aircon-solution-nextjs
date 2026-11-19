@@ -227,7 +227,7 @@ export interface QuoteSummary {
   status: QuoteStatus;
 }
 
-/** Las llamadas van a /api/...: en desarrollo Vite las reenvía a Spring Boot y en producción las sirve el mismo servidor. */
+/** Las llamadas van a /api/...: en desarrollo Vite las reenvía a Spring Boot y en producción Netlify las reenvía al servidor. */
 const API = '/api/v1';
 
 /** Error de la API con el código HTTP y el cuerpo de la respuesta (RFC 9457). */
@@ -242,7 +242,42 @@ export class ApiError extends Error {
 
 type Query = Record<string, string | number | undefined | null>;
 
+/*
+ * El servidor gratuito se apaga cuando nadie lo usa y tarda hasta un minuto en encenderse.
+ * Antes de cada llamada se confirma que está encendido (si no se habló con él hace poco), así
+ * los formularios no fallan ni se envían dos veces mientras arranca.
+ */
+const AWAKE_FOR_MS = 10 * 60_000;
+let lastContact = 0;
+let waking: Promise<void> | null = null;
+
+/** Enciende el servidor si está apagado. Se llama al empezar a llenar un formulario o al abrir el panel. */
+export function wakeApi(): Promise<void> {
+  if (Date.now() - lastContact < AWAKE_FOR_MS) return Promise.resolve();
+  waking ??= (async () => {
+    const deadline = Date.now() + 120_000;
+    while (Date.now() < deadline) {
+      try {
+        const res = await fetch('/actuator/health', { cache: 'no-store' });
+        if (res.ok) {
+          lastContact = Date.now();
+          return;
+        }
+        // 502/503/504: el servidor todavía está arrancando; se vuelve a intentar.
+      } catch {
+        // Sin conexión a internet: no tiene sentido esperar; la llamada real mostrará el error.
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+  })().finally(() => {
+    waking = null;
+  });
+  return waking;
+}
+
 async function request<T>(method: string, path: string, opts: { body?: unknown; auth?: string; query?: Query; blob?: boolean } = {}): Promise<T> {
+  await wakeApi();
   const url = new URL(API + path, location.origin);
   for (const [k, v] of Object.entries(opts.query ?? {})) {
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v));
@@ -256,6 +291,7 @@ async function request<T>(method: string, path: string, opts: { body?: unknown; 
   } catch {
     throw new ApiError(0, null);
   }
+  lastContact = Date.now();
   if (!res.ok) {
     let body = null;
     try {

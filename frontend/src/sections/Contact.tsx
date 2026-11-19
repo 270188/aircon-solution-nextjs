@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 
-import { api, describeError } from '../core/api';
+import { api, describeError, wakeApi } from '../core/api';
 import { business, whatsappLink } from '../core/site.data';
 import { ui } from '../core/ui';
 import { delay } from '../shared/effects';
@@ -124,7 +124,7 @@ export function Contact() {
               </div>
             </div>
 
-            <form className="card form" onSubmit={submit} noValidate data-reveal="right">
+            <form className="card form" onSubmit={submit} onFocusCapture={() => void wakeApi()} noValidate data-reveal="right">
               {sent ? (
                 <div className="sent" role="status">
                   <div className="plane" aria-hidden="true"><Icon name="arrowRight" size={34} /></div>

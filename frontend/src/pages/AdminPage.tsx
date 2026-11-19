@@ -11,6 +11,7 @@ import {
   type Page,
   type Quote,
   type Subscriber,
+  wakeApi,
 } from '../core/api';
 import { ui } from '../core/ui';
 import { CountUp } from '../shared/CountUp';
@@ -155,7 +156,7 @@ export function AdminPage() {
     return (
       <div className="c-admin-page">
         <div className="container">
-          <form className="card login" onSubmit={login}>
+          <form className="card login" onSubmit={login} onFocusCapture={() => void wakeApi()}>
             <h1>Panel AIRCONSOLUTION SERVICES SAC</h1>
             <p>Ingresa con tu usuario de administrador.</p>
             <div className="field">
