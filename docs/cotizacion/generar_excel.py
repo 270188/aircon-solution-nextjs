@@ -6,7 +6,7 @@ Genera la plantilla de cotización EDITABLE en Excel (.xlsx) de AIRCONSOLUTION S
 - Sello de agua: el logo, tenue e inclinado, como imagen de encabezado de página. Así lo hace
   Excel: se ve detrás de las celdas en la vista "Diseño de página" y al imprimir o guardar en PDF.
 
-Uso:  python3 docs/cotizacion/generar_excel.py <logo.png> <salida.xlsx>
+Uso:  python3 docs/cotizacion/generar_excel.py <logo.png> <salida.xlsx> [--sin-sello]
 """
 import datetime as dt
 import io
@@ -28,6 +28,8 @@ from PIL import Image, ImageDraw
 
 logo_src = pathlib.Path(sys.argv[1])
 out_path = pathlib.Path(sys.argv[2])
+# --sin-sello: versión de respaldo sin la imagen de encabezado (solo lo que escribe openpyxl).
+SIN_SELLO = "--sin-sello" in sys.argv[3:]
 
 # ---------- Imágenes ----------
 logo = Image.open(logo_src).convert("RGBA")
@@ -391,6 +393,12 @@ ws.freeze_panes = None
 # Encabezado con la imagen (&G); los saltos de línea la bajan al centro de la hoja.
 ws.oddHeader.center.text = "\n" * 15 + "&G"
 
+if SIN_SELLO:
+    ws.oddHeader.center.text = None
+    wb.save(out_path)
+    print("ok", out_path)
+    sys.exit(0)
+
 tmp = pathlib.Path(tempfile.mkdtemp()) / "base.xlsx"
 wb.save(tmp)
 
@@ -398,7 +406,7 @@ wb.save(tmp)
 wm_w_pt = 400
 wm_h_pt = round(wm_w_pt * WM_SIZE[1] / WM_SIZE[0])
 VML = f"""<xml xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
- <o:shapelayout v:ext="edit"><o:idmap v:ext="edit" data="1"/></o:shapelayout>
+ <o:shapelayout v:ext="edit"><o:idmap v:ext="edit" data="2"/></o:shapelayout>
  <v:shapetype id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
   <v:stroke joinstyle="miter"/>
   <v:formulas>
@@ -410,7 +418,7 @@ VML = f"""<xml xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-micr
   <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
   <o:lock v:ext="edit" aspectratio="t"/>
  </v:shapetype>
- <v:shape id="CH" o:spid="_x0000_s1025" type="#_x0000_t75" style="position:absolute;margin-left:0;margin-top:0;width:{wm_w_pt}pt;height:{wm_h_pt}pt;z-index:1">
+ <v:shape id="CH" o:spid="_x0000_s2049" type="#_x0000_t75" style="position:absolute;margin-left:0;margin-top:0;width:{wm_w_pt}pt;height:{wm_h_pt}pt;z-index:1">
   <v:imagedata o:relid="rId1" o:title="sello-de-agua"/>
   <o:lock v:ext="edit" rotation="t"/>
  </v:shape>
@@ -427,8 +435,11 @@ with zipfile.ZipFile(tmp) as zin, zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEF
                 xml = xml.replace("<worksheet ", '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" ', 1)
             xml = xml.replace("_x000a_", "\n")  # saltos de línea reales en el encabezado
             tag = '<legacyDrawingHF r:id="rIdSello"/>'
-            if "<drawing " in xml:
-                xml = re.sub(r"(<drawing [^>]*/>)", r"\1" + tag, xml, count=1)
+            # Orden exigido por Excel: drawing → legacyDrawing (notas) → legacyDrawingHF.
+            for anchor in (r"<legacyDrawing [^>]*/>", r"<drawing [^>]*/>"):
+                if re.search(anchor, xml):
+                    xml = re.sub("(" + anchor + ")", lambda m: m.group(1) + tag, xml, count=1)
+                    break
             else:
                 xml = xml.replace("</worksheet>", tag + "</worksheet>")
             data = xml.encode()
