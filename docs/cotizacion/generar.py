@@ -308,7 +308,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
         <b>Datos para el pago</b>
         <p>BCP · Cuenta en Soles: <strong>1933184590074</strong></p>
         <p>CCI: <strong>00219300318459007410</strong></p>
-        <p>Titular: AIRCONSOLUTION SERVICES SAC · RUC {E(D["ruc_empresa"])}</p>
+        <p>Titular: {E(D.get("titular", "AIRCONSOLUTION SERVICES SAC"))} · RUC {E(D["ruc_empresa"])}</p>
       </div>
       <div class="sign">
         <div class="line">AIRCONSOLUTION SERVICES SAC</div>
