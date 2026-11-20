@@ -105,7 +105,9 @@ def en_letras(monto: float) -> str:
 
 
 ITEMS = [tuple(x) for x in D["items"]]
-subtotal = sum(q * p for _, _, q, _, p in ITEMS)
+# Una partida con precio null (p. ej. materiales que se cotizan al instalar) sale como «Por definir»
+# y no suma al total.
+subtotal = sum(q * p for _, _, q, _, p in ITEMS if p is not None)
 igv = round(subtotal * 0.18, 2)
 total = round(subtotal + igv, 2)
 fecha = dt.date.fromisoformat(D["fecha"])
@@ -122,8 +124,8 @@ rows = "\n".join(
     f"""<tr>
       <td class="n">{i:02d}</td>
       <td class="desc"><strong>{E(t)}</strong><span>{E(d).replace(chr(10), "<br>")}</span></td>
-      <td class="c">{q:g}</td><td class="c">{E(u)}</td>
-      <td class="r">{money(p)}</td><td class="r b">{money(q * p)}</td>
+      <td class="c">{q if isinstance(q, str) else format(q, "g")}</td><td class="c">{E(u)}</td>
+      <td class="r">{money(p) if p is not None else "Por definir"}</td><td class="r b">{money(q * p) if p is not None else "—"}</td>
     </tr>"""
     for i, (t, d, q, u, p) in enumerate(ITEMS, 1)
 )
@@ -209,7 +211,7 @@ th.c, th.r {{ text-align: center; }} th.r {{ text-align: right; }}
   font-family: 'Poppins'; font-weight: 700; font-size: 12pt; padding: 3mm 4mm; border: 0; }}
 
 /* Condiciones */
-.terms {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }}
+.terms {{ display: grid; grid-template-columns: 1.7fr 1fr 1fr 1fr; gap: 3mm; }}
 .term {{ border-radius: 2.6mm; padding: 3mm 3.4mm; background: rgba(232,242,253,.8); }}
 .term b {{ display: block; font-family: 'Poppins'; font-weight: 700; font-size: 7.4pt; letter-spacing: 1.2px;
   text-transform: uppercase; color: var(--blue); margin-bottom: .8mm; }}
@@ -257,10 +259,10 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
         <h2>Cliente</h2>
         <div class="name">{C["nombre"]}</div>
         <dl class="kv">
-          <dt>RUC / DNI</dt><dd>{C["documento"]}</dd>
+          {"<dt>RUC / DNI</dt><dd>" + C["documento"] + "</dd>" if C.get("documento") else ""}
           {"" if not C.get("atencion") else "<dt>Atención</dt><dd>" + C["atencion"] + "</dd>"}
-          <dt>Dirección</dt><dd>{C["direccion"]}</dd>
-          <dt>Teléfono</dt><dd>{C["telefono"]}</dd>
+          {"<dt>Dirección</dt><dd>" + C["direccion"] + "</dd>" if C.get("direccion") else ""}
+          {"<dt>Teléfono</dt><dd>" + C["telefono"] + "</dd>" if C.get("telefono") else ""}
         </dl>
       </div>
       <div class="card">
@@ -297,7 +299,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
     </section>
 
     <section class="terms">
-      <div class="term"><b>Forma de pago</b><span>60 % de adelanto y 40 % al terminar. Venta de equipos: 100 % adelantado</span></div>
+      <div class="term"><b>Forma de pago</b><span>{E(D.get("forma_pago", "60 % de adelanto y 40 % al terminar. Venta de equipos: 100 % adelantado"))}</span></div>
       <div class="term"><b>Plazo</b><span>3 días hábiles desde la aprobación</span></div>
       <div class="term"><b>Garantía</b><span>Por escrito, según el trabajo y los repuestos</span></div>
       <div class="term"><b>Validez</b><span>{int(D["validez_dias"])} días calendario desde la emisión</span></div>
