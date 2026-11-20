@@ -6,3 +6,5 @@ node_modules/
 *.log
 backend/src/main/resources/static/
 .netlify
+# HTML intermedio de la cotización (se regenera con docs/cotizacion/generar.py)
+docs/cotizacion/cotizacion-airconsolution.html
