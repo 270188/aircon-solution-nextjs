@@ -1,10 +1,16 @@
 """
 Genera la plantilla de cotización de AIRCONSOLUTION SERVICES SAC (A4) en HTML y PDF.
 
-Uso:  python3 docs/cotizacion/generar.py <logo-transparente.png> <carpeta-salida>
+Uso:  python3 docs/cotizacion/generar.py <logo-transparente.png> <carpeta-salida> [datos.json]
+
+Sin datos.json se genera la plantilla de ejemplo. Con datos.json (ver ejemplo-datos.json) se genera
+la cotización real; el total en letras se calcula solo.
 Requiere Node con Playwright y Chromium (a-pdf.cjs convierte el HTML a PDF).
 """
 import base64
+import datetime as dt
+import html
+import json
 import pathlib
 import sys
 
@@ -34,21 +40,78 @@ FONT_CSS = "".join(
     [font("inter", w) for w in (400, 500, 600, 700)] + [font("poppins", w) for w in (600, 700, 800)]
 )
 
-# --- Datos de ejemplo (se reemplazan en cada cotización) ---
-ITEMS = [
-    ("Suministro e instalación de equipo split inverter 12 000 BTU",
-     "Incluye 3 m de tubería de cobre aislada, soporte para condensadora, desagüe y puesta en marcha.",
-     2, "und", 1850.00),
-    ("Mantenimiento preventivo de equipo split (12 000 – 24 000 BTU)",
-     "Lavado de evaporador y condensadora, limpieza de filtros, revisión de presiones y conexiones.",
-     4, "und", 120.00),
-    ("Instalación de punto eléctrico independiente",
-     "Cableado desde tablero con llave termomagnética 2×20 A y canaleta.",
-     2, "und", 180.00),
-]
+# --- Datos: los de ejemplo, o los del archivo JSON si se indica ---
+D = {
+    "archivo": "cotizacion-airconsolution",
+    "numero": "COT-2026-0001",
+    "fecha": "2026-11-20",
+    "validez_dias": 15,
+    "ruc_empresa": "20616633733",
+    "cliente": {"nombre": "EMPRESA CLIENTE S.A.C.", "documento": "20XXXXXXXXX",
+                "atencion": "Sr(a). Nombre del contacto", "direccion": "Av. Ejemplo 123, Lima",
+                "telefono": "9XX XXX XXX"},
+    "items": [
+        ["Suministro e instalación de equipo split inverter 12\u00a0000\u00a0BTU",
+         "Incluye 3 m de tubería de cobre aislada, soporte para condensadora, desagüe y puesta en marcha.",
+         2, "und", 1850.00],
+        ["Mantenimiento preventivo de equipo split (12\u00a0000\u00a0–\u00a024\u00a0000\u00a0BTU)",
+         "Lavado de evaporador y condensadora, limpieza de filtros, revisión de presiones y conexiones.",
+         4, "und", 120.00],
+        ["Instalación de punto eléctrico independiente",
+         "Cableado desde tablero con llave termomagnética 2×20 A y canaleta.", 2, "und", 180.00],
+    ],
+}
+if len(sys.argv) > 3:
+    D.update(json.loads(pathlib.Path(sys.argv[3]).read_text(encoding="utf-8")))
+
+UNIDADES = ["", "UNO", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE", "DIEZ",
+            "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISÉIS", "DIECISIETE", "DIECIOCHO",
+            "DIECINUEVE", "VEINTE", "VEINTIUNO", "VEINTIDÓS", "VEINTITRÉS", "VEINTICUATRO",
+            "VEINTICINCO", "VEINTISÉIS", "VEINTISIETE", "VEINTIOCHO", "VEINTINUEVE"]
+DECENAS = ["", "", "", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"]
+CENTENAS = ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS",
+            "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"]
+
+
+def _cientos(n: int) -> str:
+    if n == 100:
+        return "CIEN"
+    c, r = divmod(n, 100)
+    if r < 30:
+        resto = UNIDADES[r]
+    else:
+        d, u = divmod(r, 10)
+        resto = DECENAS[d] + (f" Y {UNIDADES[u]}" if u else "")
+    return " ".join(x for x in (CENTENAS[c], resto) if x)
+
+
+def en_letras(monto: float) -> str:
+    """Monto en soles escrito en letras, como en los comprobantes: «… CON 20/100 SOLES»."""
+    entero, cent = divmod(round(monto * 100), 100)
+    if entero == 0:
+        texto = "CERO"
+    else:
+        millones, resto = divmod(entero, 1_000_000)
+        miles, cientos = divmod(resto, 1000)
+        partes = []
+        if millones:
+            partes.append("UN MILLÓN" if millones == 1 else f"{_cientos(millones)} MILLONES")
+        if miles:
+            partes.append("MIL" if miles == 1 else f"{_cientos(miles)} MIL")
+        if cientos:
+            partes.append(_cientos(cientos))
+        texto = " ".join(partes).replace("VEINTIUNO MIL", "VEINTIÚN MIL").replace("UNO MIL", "UN MIL")
+    return f"{texto} CON {cent:02d}/100 SOLES"
+
+
+ITEMS = [tuple(x) for x in D["items"]]
 subtotal = sum(q * p for _, _, q, _, p in ITEMS)
 igv = round(subtotal * 0.18, 2)
 total = round(subtotal + igv, 2)
+fecha = dt.date.fromisoformat(D["fecha"])
+valida = fecha + dt.timedelta(days=int(D["validez_dias"]))
+C = {k: html.escape(str(v)) for k, v in D["cliente"].items()}
+E = html.escape
 
 
 def money(v: float) -> str:
@@ -58,8 +121,8 @@ def money(v: float) -> str:
 rows = "\n".join(
     f"""<tr>
       <td class="n">{i:02d}</td>
-      <td class="desc"><strong>{t}</strong><span>{d}</span></td>
-      <td class="c">{q}</td><td class="c">{u}</td>
+      <td class="desc"><strong>{E(t)}</strong><span>{E(d).replace(chr(10), "<br>")}</span></td>
+      <td class="c">{q:g}</td><td class="c">{E(u)}</td>
       <td class="r">{money(p)}</td><td class="r b">{money(q * p)}</td>
     </tr>"""
     for i, (t, d, q, u, p) in enumerate(ITEMS, 1)
@@ -67,7 +130,7 @@ rows = "\n".join(
 
 HTML = f"""<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
-<title>Cotización COT-2026-0001 · AIRCONSOLUTION SERVICES SAC</title>
+<title>Cotización {E(D["numero"])} · AIRCONSOLUTION SERVICES SAC</title>
 <style>
 {FONT_CSS}
 @page {{ size: A4; margin: 0; }}
@@ -174,15 +237,15 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
       <div>
         <h1>AIRCON<span>SOLUTION</span><br>SERVICES SAC</h1>
         <div class="tag">AIRE ACONDICIONADO EN LIMA</div>
-        <div class="ruc">RUC 20616633733</div>
+        <div class="ruc">RUC {E(D["ruc_empresa"])}</div>
       </div>
     </div>
     <div class="doc">
       <div class="label">COTIZACIÓN</div>
-      <div class="num">N.° COT-2026-0001</div>
+      <div class="num">N.° {E(D["numero"])}</div>
       <dl>
-        <dt>Fecha de emisión</dt><dd>20/11/2026</dd>
-        <dt>Válida hasta</dt><dd>05/12/2026</dd>
+        <dt>Fecha de emisión</dt><dd>{fecha:%d/%m/%Y}</dd>
+        <dt>Válida hasta</dt><dd>{valida:%d/%m/%Y}</dd>
         <dt>Moneda</dt><dd>Soles (PEN)</dd>
       </dl>
     </div>
@@ -192,12 +255,12 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
     <section class="parties">
       <div class="card">
         <h2>Cliente</h2>
-        <div class="name">EMPRESA CLIENTE S.A.C.</div>
+        <div class="name">{C["nombre"]}</div>
         <dl class="kv">
-          <dt>RUC / DNI</dt><dd>20XXXXXXXXX</dd>
-          <dt>Atención</dt><dd>Sr(a). Nombre del contacto</dd>
-          <dt>Dirección</dt><dd>Av. Ejemplo 123, Lima</dd>
-          <dt>Teléfono</dt><dd>9XX XXX XXX</dd>
+          <dt>RUC / DNI</dt><dd>{C["documento"]}</dd>
+          {"" if not C.get("atencion") else "<dt>Atención</dt><dd>" + C["atencion"] + "</dd>"}
+          <dt>Dirección</dt><dd>{C["direccion"]}</dd>
+          <dt>Teléfono</dt><dd>{C["telefono"]}</dd>
         </dl>
       </div>
       <div class="card">
@@ -225,7 +288,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
     </table>
 
     <section class="sum">
-      <div class="words"><b>SON</b>CINCO MIL TRESCIENTOS CINCUENTA Y SIETE CON 20/100 SOLES</div>
+      <div class="words"><b>SON</b>{en_letras(total)}</div>
       <div class="totals">
         <div><span>Subtotal</span><strong>{money(subtotal)}</strong></div>
         <div><span>IGV (18 %)</span><strong>{money(igv)}</strong></div>
@@ -237,7 +300,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
       <div class="term"><b>Forma de pago</b><span>60 % de adelanto y 40 % al terminar. Venta de equipos: 100 % adelantado</span></div>
       <div class="term"><b>Plazo</b><span>3 días hábiles desde la aprobación</span></div>
       <div class="term"><b>Garantía</b><span>Por escrito, según el trabajo y los repuestos</span></div>
-      <div class="term"><b>Validez</b><span>15 días calendario desde la emisión</span></div>
+      <div class="term"><b>Validez</b><span>{int(D["validez_dias"])} días calendario desde la emisión</span></div>
     </section>
 
     <section class="bottom">
@@ -245,7 +308,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
         <b>Datos para el pago</b>
         <p>BCP · Cuenta en Soles: <strong>1933184590074</strong></p>
         <p>CCI: <strong>00219300318459007410</strong></p>
-        <p>Titular: AIRCONSOLUTION SERVICES SAC · RUC 20616633733</p>
+        <p>Titular: AIRCONSOLUTION SERVICES SAC · RUC {E(D["ruc_empresa"])}</p>
       </div>
       <div class="sign">
         <div class="line">AIRCONSOLUTION SERVICES SAC</div>
@@ -261,7 +324,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
 </div></body></html>
 """
 
-html_path = out_dir / "cotizacion-airconsolution.html"
+html_path = out_dir / f"{D['archivo']}.html"
 html_path.write_text(HTML, encoding="utf-8")
 
 import subprocess  # noqa: E402
