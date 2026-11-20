@@ -106,7 +106,7 @@ header::after {{ content: ''; position: absolute; left: 0; right: 0; bottom: -2.
 .doc dl {{ margin-top: 3mm; display: grid; grid-template-columns: auto auto; gap: .6mm 3mm; font-size: 8.4pt; color: #d6e2f0; justify-content: end; }}
 .doc dt {{ text-align: right; }} .doc dd {{ color: #fff; font-weight: 600; text-align: right; }}
 
-main {{ padding: 7.5mm 14mm 0; flex: 1; display: flex; flex-direction: column; gap: 4.6mm; min-height: 0; }}
+main {{ padding: 7.5mm 14mm 0; flex: 1; display: flex; flex-direction: column; gap: 3.4mm; min-height: 0; }}
 
 /* Datos del cliente y de la empresa */
 .parties {{ display: grid; grid-template-columns: 1.25fr 1fr; gap: 5mm; }}
@@ -126,7 +126,7 @@ table {{ width: 100%; border-collapse: separate; border-spacing: 0; font-size: 9
 thead th {{ background: var(--navy); color: #fff; font-family: 'Poppins'; font-weight: 600; font-size: 7.8pt;
   letter-spacing: .8px; text-transform: uppercase; padding: 2.4mm 3mm; text-align: left; white-space: nowrap; }}
 thead th:first-child {{ border-radius: 2.4mm 0 0 2.4mm; }} thead th:last-child {{ border-radius: 0 2.4mm 2.4mm 0; }}
-tbody td {{ padding: 2.3mm 3mm; border-bottom: 1px solid var(--line); vertical-align: top; background: rgba(255,255,255,.78); }}
+tbody td {{ padding: 2mm 3mm; border-bottom: 1px solid var(--line); vertical-align: top; background: rgba(255,255,255,.78); }}
 tbody tr:nth-child(even) td {{ background: rgba(232,242,253,.55); }}
 td.n {{ font-family: 'Poppins'; font-weight: 700; color: var(--orange); width: 9mm; }}
 td.desc strong {{ display: block; font-weight: 600; color: var(--navy); }}
@@ -152,12 +152,12 @@ th.c, th.r {{ text-align: center; }} th.r {{ text-align: right; }}
   text-transform: uppercase; color: var(--blue); margin-bottom: .8mm; }}
 .term span {{ font-size: 8.4pt; }}
 
-.bottom {{ display: grid; grid-template-columns: 1fr 66mm; gap: 8mm; align-items: end; margin-top: auto; padding-bottom: 5mm; }}
+.bottom {{ display: grid; grid-template-columns: 1fr 66mm; gap: 8mm; align-items: end; margin-top: auto; padding-bottom: 4mm; }}
 .bank {{ font-size: 8.4pt; color: var(--muted); }}
 .bank b {{ color: var(--navy); font-family: 'Poppins'; font-size: 8pt; letter-spacing: 1px; text-transform: uppercase; }}
 .bank p {{ margin-top: 1mm; }}
 .sign {{ text-align: center; font-size: 8.4pt; }}
-.sign .line {{ border-top: 1.2px solid var(--navy); padding-top: 1.6mm; margin-top: 11mm; font-weight: 600; color: var(--navy); }}
+.sign .line {{ border-top: 1.2px solid var(--navy); padding-top: 1.6mm; margin-top: 7mm; font-weight: 600; color: var(--navy); }}
 .sign span {{ color: var(--muted); }}
 
 footer {{ background: var(--navy); color: #cfd9e6; padding: 4.2mm 14mm; font-size: 8pt;
@@ -234,7 +234,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
     </section>
 
     <section class="terms">
-      <div class="term"><b>Forma de pago</b><span>50 % al aceptar y 50 % al terminar el trabajo</span></div>
+      <div class="term"><b>Forma de pago</b><span>60 % de adelanto y 40 % al terminar. Venta de equipos: 100 % adelantado</span></div>
       <div class="term"><b>Plazo</b><span>3 días hábiles desde la aprobación</span></div>
       <div class="term"><b>Garantía</b><span>Por escrito, según el trabajo y los repuestos</span></div>
       <div class="term"><b>Validez</b><span>15 días calendario desde la emisión</span></div>
@@ -243,8 +243,8 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
     <section class="bottom">
       <div class="bank">
         <b>Datos para el pago</b>
-        <p>Banco: ______________________ · Cuenta corriente: ______________________</p>
-        <p>CCI: ______________________________</p>
+        <p>BCP · Cuenta en Soles: <strong>1933184590074</strong></p>
+        <p>CCI: <strong>00219300318459007410</strong></p>
         <p>Titular: AIRCONSOLUTION SERVICES SAC · RUC 20616633733</p>
       </div>
       <div class="sign">
