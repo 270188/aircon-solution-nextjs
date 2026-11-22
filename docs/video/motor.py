@@ -35,6 +35,11 @@ def foto(nombre):
     return f"data:image/webp;base64,{b64(FOTOS / f'{nombre}-480.webp')}"
 
 
+def foto_galeria(nombre):
+    """Foto de la carpeta images/ (por ejemplo gal_4), versión liviana de 480 px."""
+    return f"data:image/webp;base64,{b64(FOTOS.parent / f'{nombre}-480.webp')}"
+
+
 def font_css():
     return "".join(
         f"@font-face{{font-family:'{fam.capitalize()}';font-weight:{w};src:url(data:font/woff2;base64,"
