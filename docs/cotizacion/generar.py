@@ -12,6 +12,7 @@ import datetime as dt
 import html
 import json
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -116,6 +117,12 @@ C = {k: html.escape(str(v)) for k, v in D["cliente"].items()}
 E = html.escape
 
 
+def NB(text: str) -> str:
+    """Mantiene juntos los números con espacio de miles y su unidad (p. ej. «12 000 BTU»)."""
+    text = re.sub(r"(\d) (\d{3})", "\\1\u00a0\\2", text)
+    return re.sub(r"(\d) (BTU|A|m|V)\b", "\\1\u00a0\\2", text)
+
+
 def money(v: float) -> str:
     return f"S/ {v:,.2f}"
 
@@ -123,7 +130,7 @@ def money(v: float) -> str:
 rows = "\n".join(
     f"""<tr>
       <td class="n">{i:02d}</td>
-      <td class="desc"><strong>{E(t)}</strong><span>{E(d).replace(chr(10), "<br>")}</span></td>
+      <td class="desc"><strong>{NB(E(t))}</strong><span>{NB(E(d)).replace(chr(10), "<br>")}</span></td>
       <td class="c">{q if isinstance(q, str) else format(q, "g")}</td><td class="c">{E(u)}</td>
       <td class="r">{money(p) if p is not None else "Por definir"}</td><td class="r b">{money(q * p) if p is not None else "—"}</td>
     </tr>"""
