@@ -1,8 +1,9 @@
 """
 Video «¿Cuántos BTU necesito?» (guía rápida para elegir la capacidad del aire acondicionado).
 
-Guía usada (clima cálido como Lima, ~600 BTU por m²): 9 000 BTU hasta 15 m², 12 000 de 15 a 20 m²,
-18 000 de 20 a 30 m², 24 000 de 30 a 40 m². Es referencial: la visita técnica define el equipo exacto.
+Guía usada (clima cálido como Lima, ~600 BTU por m²). En Lima se trabaja desde 12 000 BTU:
+12 000 hasta 20 m², 18 000 de 20 a 30 m², 24 000 de 30 a 40 m². Es referencial: la visita técnica
+define el equipo exacto.
 
 Uso:  python3 docs/video/video_btu.py <logo.png> <voz-piper.onnx> <salida.mp4> [--vista hoja.png]
 """
@@ -20,7 +21,7 @@ voz_dir = salida.with_name(salida.stem + "-voz")
 GUION = [
     "¿Vas a comprar un aire acondicionado y no sabes cuántos BTU necesitas? Te lo explicamos fácil.",
     "Los BTU indican la potencia del aire para enfriar. Mientras más grande es el ambiente, más BTU necesitas.",
-    "Como guía: nueve mil BTU, para ambientes de hasta quince metros cuadrados. Doce mil, de quince a veinte metros. "
+    "Como guía: doce mil BTU, para ambientes de hasta veinte metros cuadrados. "
     "Dieciocho mil, de veinte a treinta. Y veinticuatro mil, de treinta a cuarenta metros cuadrados.",
     "Pero ojo: elige un nivel más si el ambiente recibe mucho sol, está en el último piso, hay muchas personas, "
     "o tiene equipos que dan calor, como cocinas o computadoras.",
@@ -60,10 +61,10 @@ CSS = """
 .ok{margin-top:18px;width:100%}
 """
 
-COLORES = ["#5fb4ff", "#1e88e5", "#f5821f", "#e06a0a"]
-FILAS = [("9 000", "Hasta 15 m²", "🛏️ Dormitorio"), ("12 000", "15 a 20 m²", "🛏️ Dormitorio grande · 🖥️ Oficina"),
+COLORES = ["#1e88e5", "#f5821f", "#e06a0a"]
+FILAS = [("12 000", "Hasta 20 m²", "🛏️ Dormitorio · 🖥️ Oficina"),
          ("18 000", "20 a 30 m²", "🛋️ Sala · Oficina grande"), ("24 000", "30 a 40 m²", "🏪 Sala grande · Local")]
-paso_guia = max(1.0, (VOZ[2] - 1.5) / 4)
+paso_guia = max(1.0, (VOZ[2] - 1.5) / 3)
 guia = "".join(
     f'<div class="g slide" style="--d:{t[2] + 1.2 + i * paso_guia:.2f}s"><div class="b" style="background:{c}">'
     f'{btu.replace(" ", "&nbsp;")}<small>BTU</small></div><div class="m"><b>{m2}</b><span>{uso}</span></div></div>'
@@ -91,7 +92,7 @@ ESCENAS = "".join([
     m.escena(2, E, f'''
   <h2 class="pop" style="--d:{t[2]+.3:.2f}s">Guía rápida 📏</h2>
   <div class="guide">{guia}</div>
-  <p class="small pop" style="--d:{t[2] + 1.2 + 4 * paso_guia:.2f}s">Referencial · la visita técnica define el equipo exacto</p>'''),
+  <p class="small pop" style="--d:{t[2] + 1.2 + 3 * paso_guia:.2f}s">Referencial · la visita técnica define el equipo exacto</p>'''),
     m.escena(3, E, f'''
   <h2 class="pop" style="--d:{t[3]+.3:.2f}s">¡Ojo! 👀 Sube <span class="o">un nivel</span> si…</h2>
   <div class="factors">{factores}</div>
