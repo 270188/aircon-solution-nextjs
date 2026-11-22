@@ -109,7 +109,9 @@ ITEMS = [tuple(x) for x in D["items"]]
 # Una partida con precio null (p. ej. materiales que se cotizan al instalar) sale como «Por definir»
 # y no suma al total.
 subtotal = sum(q * p for _, _, q, _, p in ITEMS if p is not None)
-igv = round(subtotal * 0.18, 2)
+# "igv": false → sin IGV (no se muestra ni se suma).
+CON_IGV = D.get("igv", True)
+igv = round(subtotal * 0.18, 2) if CON_IGV else 0.0
 total = round(subtotal + igv, 2)
 fecha = dt.date.fromisoformat(D["fecha"])
 valida = fecha + dt.timedelta(days=int(D["validez_dias"]))
@@ -284,7 +286,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
     </section>
 
     <p class="intro">De nuestra consideración: por medio de la presente le hacemos llegar nuestra propuesta
-      para los trabajos solicitados. <strong>Precios sin IGV; el IGV (18 %) se suma al final.</strong></p>
+      para los trabajos solicitados.{" <strong>Precios sin IGV; el IGV (18 %) se suma al final.</strong>" if CON_IGV else ""}</p>
 
     <table>
       <thead><tr>
@@ -299,8 +301,8 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
     <section class="sum">
       <div class="words"><b>SON</b>{en_letras(total)}</div>
       <div class="totals">
-        <div><span>Subtotal</span><strong>{money(subtotal)}</strong></div>
-        <div><span>IGV (18 %)</span><strong>{money(igv)}</strong></div>
+{f"""        <div><span>Subtotal</span><strong>{money(subtotal)}</strong></div>
+        <div><span>IGV (18 %)</span><strong>{money(igv)}</strong></div>""" if CON_IGV else ""}
         <div class="grand"><span>TOTAL</span><span>{money(total)}</span></div>
       </div>
     </section>
