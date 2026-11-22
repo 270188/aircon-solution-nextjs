@@ -5,10 +5,12 @@ Hoja «Movimientos»: se anota cada entrada (cobro) y salida (gasto).
 Hoja «Reporte»: se arma solo con fórmulas: lo de HOY, la semana día por día, la ganancia de la
 semana, el detalle por categoría y por medio de pago, y un gráfico de entradas y salidas.
 
-Uso:  python3 docs/caja/generar_caja.py <salida.xlsx> [--ejemplo]
+Uso:  python3 docs/caja/generar_caja.py <salida.xlsx> [--ejemplo | --datos movimientos.json]
+      movimientos.json: lista de [fecha "AAAA-MM-DD", tipo, concepto, categoría, cliente, medio, monto].
       --ejemplo agrega movimientos de prueba (solo para revisar que las fórmulas funcionan).
 """
 import datetime as dt
+import json
 import sys
 
 from openpyxl import Workbook
@@ -19,6 +21,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 out = sys.argv[1]
 EJEMPLO = "--ejemplo" in sys.argv[2:]
+DATOS = sys.argv[sys.argv.index("--datos") + 1] if "--datos" in sys.argv else None
 
 NAVY, BLUE, ORANGE, GREEN, RED = "0D1B2E", "1E88E5", "F5821F", "2BB673", "E5484D"
 SKY, MUTED, LINE = "E8F2FD", "5D6B7A", "D9E0EA"
@@ -122,6 +125,13 @@ mv.conditional_formatting.add(rng, FormulaRule(formula=[f'$B{FIRST}="Entrada"'],
 mv.conditional_formatting.add(rng, FormulaRule(formula=[f'$B{FIRST}="Salida"'], fill=fill("FDECEC")))
 mv.conditional_formatting.add(f"G{FIRST}:G{LAST}", FormulaRule(formula=[f'$B{FIRST}="Entrada"'], font=Font(bold=True, color="1E8F55")))
 mv.conditional_formatting.add(f"G{FIRST}:G{LAST}", FormulaRule(formula=[f'$B{FIRST}="Salida"'], font=Font(bold=True, color="C0392B")))
+
+if DATOS:
+    for i, (fe, t, c, cat, cli, m, monto) in enumerate(json.load(open(DATOS, encoding="utf-8"))):
+        r = FIRST + i
+        mv[f"A{r}"] = dt.date.fromisoformat(fe)
+        mv[f"B{r}"], mv[f"C{r}"], mv[f"D{r}"] = t, c, cat or None
+        mv[f"E{r}"], mv[f"F{r}"], mv[f"G{r}"] = cli or None, m or None, monto
 
 if EJEMPLO:
     hoy = dt.date(2026, 11, 22)
