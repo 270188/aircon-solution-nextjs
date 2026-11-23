@@ -59,7 +59,7 @@ export function ServicePage({ page }: { page: ServicePageData }) {
               <Link to="/">Inicio</Link> <span aria-hidden="true">›</span> <Link to="/#soluciones">Soluciones</Link>{' '}
               <span aria-hidden="true">›</span> <span aria-current="page">{page.label}</span>
             </nav>
-            <span className="eyebrow">Soluciones corporativas integrales</span>
+            <span className="eyebrow">{page.eyebrow ?? 'Soluciones corporativas integrales'}</span>
             <h1>{page.h1}</h1>
             <p className="lead">{page.intro}</p>
             {ctas}

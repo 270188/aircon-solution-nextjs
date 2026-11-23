@@ -99,7 +99,7 @@ function structuredData(withFaq = true): string {
 function fallbackContent(): string {
   return `
     <main class="seo-fallback">
-      <h1>Aire acondicionado, mantenimiento y electricidad en Lima — ${esc(business.name)}</h1>
+      <h1>Aire acondicionado en Lima: instalación, mantenimiento y reparación — ${esc(business.name)}</h1>
       <p>Instalamos, reparamos y mantenemos equipos de aire acondicionado e instalaciones eléctricas en Lima, con técnicos capacitados, repuestos originales, garantía por escrito y atención de emergencias 24/7.</p>
       <h2>Nuestros servicios</h2>
       <ul>

@@ -281,6 +281,8 @@ export interface ServicePageData {
   photos: string[];
   /** Mensaje que se envía por WhatsApp al pedir la cotización. */
   quoteMessage: string;
+  /** Texto pequeño sobre el título (por defecto «Soluciones corporativas integrales»). */
+  eyebrow?: string;
 }
 
 /** Tipos de clientes que atendemos. */
@@ -427,6 +429,66 @@ export const servicePages: ServicePageData[] = [
       'images/gal_1',
     ],
     quoteMessage: 'Hola AIRCONSOLUTION SERVICES SAC, quisiera una cotización de un contrato de mantenimiento preventivo.',
+  },
+  {
+    slug: 'aire-acondicionado-los-olivos',
+    label: 'Aire acondicionado en Los Olivos',
+    icon: 'pin',
+    bookingService: 'AIRE_ACONDICIONADO',
+    eyebrow: 'Estamos en Los Olivos · Lima Norte',
+    seoTitle: 'Aire Acondicionado en Los Olivos y Lima Norte :: AIRCONSOLUTION',
+    seoDescription:
+      'Aire acondicionado en Los Olivos: instalación, mantenimiento y reparación. Llegamos rápido a San Martín de Porres, Comas, Independencia y Puente Piedra.',
+    h1: 'Aire acondicionado en Los Olivos y Lima Norte',
+    intro:
+      'Somos una empresa de Los Olivos, así que llegamos rápido a tu casa, oficina o negocio en Lima Norte: San Martín de Porres, Comas, Independencia, Puente Piedra y Carabayllo. Instalamos, mantenemos y reparamos aire acondicionado de todas las marcas, con más de 20 años de experiencia y garantía por escrito.',
+    includes: [
+      'Instalación de aire acondicionado split, piso-techo, cassette y ductos',
+      'Mantenimiento preventivo para casas, oficinas y negocios',
+      'Reparación de fallas: no enfría, gotea, hace ruido o marca error',
+      'Atención de emergencias 24/7 en Lima Norte',
+      'Visita técnica y cotización por escrito',
+      'Boleta o factura y garantía por escrito',
+    ],
+    photos: [
+      'images/trabajos/condensadoras-coldpoint',
+      'images/trabajos/tecnico-york',
+      'images/trabajos/lavado-condensadora-gree',
+      'images/trabajos/split-limpieza',
+      'images/trabajos/reparacion-coldpoint',
+      'images/gal_4',
+    ],
+    quoteMessage: 'Hola AIRCONSOLUTION SERVICES SAC, estoy en Lima Norte y quisiera una cotización de aire acondicionado.',
+  },
+  {
+    slug: 'aire-acondicionado-para-casas',
+    label: 'Aire acondicionado para casas',
+    icon: 'home',
+    bookingService: 'AIRE_ACONDICIONADO',
+    eyebrow: 'Para tu hogar',
+    seoTitle: 'Aire Acondicionado para Casas en Lima :: AIRCONSOLUTION',
+    seoDescription:
+      'Aire acondicionado para casas en Lima: te ayudamos a elegir el equipo (BTU, inverter), lo instalamos y le damos mantenimiento. Garantía por escrito.',
+    h1: 'Aire acondicionado para casas en Lima',
+    intro:
+      'Te ayudamos a elegir el aire acondicionado ideal para tu dormitorio o tu sala, lo instalamos con un acabado limpio y le damos mantenimiento para que dure muchos años. Como guía: 12 000 BTU para ambientes de hasta 20 m², 18 000 BTU de 20 a 30 m² y 24 000 BTU de 30 a 40 m². Si lo usas varias horas al día, te recomendamos un equipo inverter, porque ahorra luz.',
+    includes: [
+      'Asesoría para elegir el equipo: BTU, inverter o convencional',
+      'Venta e instalación de equipos split para dormitorios y salas',
+      'Instalación limpia: tubería de cobre aislada, desagüe y prueba de fugas',
+      'Mantenimiento cada 6 meses para que enfríe bien y gaste menos luz',
+      'Reparación de equipos de todas las marcas',
+      'Garantía por escrito',
+    ],
+    photos: [
+      'images/trabajos/split-limpieza',
+      'images/trabajos/limpieza-filtros',
+      'images/trabajos/condensadora-mantenimiento',
+      'images/trabajos/lavado-condensadora-inverter',
+      'images/gal_4',
+      'images/trabajos/condensadora-lavado',
+    ],
+    quoteMessage: 'Hola AIRCONSOLUTION SERVICES SAC, quisiera una cotización de aire acondicionado para mi casa.',
   },
 ];
 

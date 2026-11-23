@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 
-import { sectors, servicePages } from '../core/site.data';
+import { coverage, sectors, servicePages } from '../core/site.data';
 import { delay } from '../shared/effects';
 import { Icon } from '../shared/Icon';
 
@@ -31,6 +31,19 @@ export function Solutions() {
               </li>
             ))}
           </ul>
+
+          <div className="zones" data-reveal="up">
+            <h3>Aire acondicionado en toda Lima y Callao</h3>
+            <p>
+              Estamos en Los Olivos y atendemos casas, oficinas y negocios en toda Lima Metropolitana y Callao.{' '}
+              <Link to="/aire-acondicionado-los-olivos">Ver atención en Lima Norte</Link>
+            </p>
+            <ul>
+              {coverage.map((c) => (
+                <li key={c.zone}><strong>{c.zone}:</strong> {c.districts}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
     </div>
