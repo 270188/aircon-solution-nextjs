@@ -11,7 +11,8 @@ datos.json:
   "equipos": [["Ubicación", "Marca", "Tipo", "Capacidad"], ...],   (o "cantidad_equipos": 2 si no hay detalle)
   "trabajos": ["Limpieza de filtros", ...],
   "comprobante": "Factura electrónica E001-3",
-  "firmante": "Clever Molina Pardo", "cargo": "Gerente"
+  "firmante": "Clever Molina Pardo", "cargo": "Gerente",
+  "firma_png": "/ruta/firma.png"   (opcional: firma escaneada con fondo transparente)
 }
 Requiere Node con Playwright (usa ../cotizacion/a-pdf.cjs).
 """
@@ -79,6 +80,8 @@ else:
 trabajos = "".join(f"<li>{E(t)}</li>" for t in D["trabajos"])
 PROX = (f'<div class="box next"><div class="k">Próximo mantenimiento</div><div class="v">{MESES[proximo.month - 1].capitalize()} de {proximo.year}</div>'
         f'<div class="s">Recomendado cada {MESES_PROX} meses</div></div>') if proximo else ""
+FIRMA = (f'<img class="firma" src="data:image/png;base64,{b64(D["firma_png"])}" alt="Firma">'
+         if D.get("firma_png") else "")
 dir_cli = f"<dt>Dirección</dt><dd>{E(C['direccion'])}</dd>" if C.get("direccion") else ""
 
 HTML = f"""<!doctype html><html lang="es"><head><meta charset="utf-8">
@@ -104,15 +107,15 @@ header::after {{ content:''; position:absolute; left:0; right:0; bottom:-2mm; he
 .brand h1 span {{ color:var(--orange); }}
 .brand .tag {{ font-family:'Poppins'; font-weight:600; font-size:7pt; letter-spacing:2.6px; color:#9fc4ee; margin-top:1.4mm; }}
 .brand .ruc {{ font-size:8pt; color:#cfd9e6; margin-top:1.8mm; }}
-main {{ padding:9mm 18mm 0; flex:1; display:flex; flex-direction:column; }}
+main {{ padding:6mm 18mm 0; flex:1; display:flex; flex-direction:column; }}
 .title {{ text-align:center; }}
 .title .k {{ font-family:'Poppins'; font-weight:600; font-size:9pt; letter-spacing:5px; color:var(--blue); }}
 .title h2 {{ font-family:'Poppins'; font-weight:800; font-size:25pt; letter-spacing:2px; color:var(--navy); line-height:1.15; margin-top:1mm; }}
 .title h2 span {{ color:var(--orange); }}
 .title .num {{ display:inline-block; margin-top:2.5mm; background:var(--orange); color:#fff; font-family:'Poppins'; font-weight:700; font-size:9.5pt; padding:1.2mm 4.5mm; border-radius:10mm; }}
-.lead {{ margin-top:7mm; font-size:10.6pt; text-align:justify; }}
+.lead {{ margin-top:4.5mm; font-size:10.6pt; text-align:justify; }}
 .lead b {{ color:var(--navy); }}
-.card {{ margin-top:5mm; border:1px solid var(--line); border-radius:3mm; padding:3.6mm 5mm; background:rgba(255,255,255,.85); }}
+.card {{ margin-top:3.6mm; border:1px solid var(--line); border-radius:3mm; padding:3.6mm 5mm; background:rgba(255,255,255,.85); }}
 .card h3 {{ font-family:'Poppins'; font-weight:700; font-size:8pt; letter-spacing:1.6px; color:var(--blue); text-transform:uppercase;
   margin-bottom:2.4mm; display:flex; align-items:center; gap:2mm; }}
 .card h3::before {{ content:''; width:5mm; height:.8mm; border-radius:1mm; background:linear-gradient(90deg,var(--blue),var(--orange)); }}
@@ -124,7 +127,7 @@ td {{ padding:1.6mm 2.4mm; border-bottom:1px solid var(--line); }} td.n {{ color
 ul {{ list-style:none; columns:2; column-gap:6mm; font-size:9.3pt; }}
 li {{ break-inside:avoid; padding-left:5.5mm; position:relative; margin-bottom:1.1mm; }}
 li::before {{ content:'✔'; position:absolute; left:0; color:var(--green); font-weight:700; }}
-.result {{ margin-top:5mm; display:grid; grid-template-columns:1fr 1fr; gap:4mm; }}
+.result {{ margin-top:3.6mm; display:grid; grid-template-columns:1fr 1fr; gap:4mm; }}
 .box {{ border-radius:3mm; padding:3.4mm 5mm; }}
 .result.solo {{ grid-template-columns:1fr; }}
 .ok {{ background:#eaf8f0; border:1px solid #bfe6cf; }} .next {{ background:#fff4e5; border:1px solid #fbd9b0; }}
@@ -132,12 +135,13 @@ li::before {{ content:'✔'; position:absolute; left:0; color:var(--green); font
 .ok .k {{ color:var(--green); }} .next .k {{ color:#c2610a; }}
 .box .v {{ font-family:'Poppins'; font-weight:700; font-size:11.5pt; color:var(--navy); margin-top:.6mm; }}
 .box .s {{ font-size:8.4pt; color:var(--muted); }}
-.place {{ margin-top:auto; text-align:right; font-size:9.8pt; }}
-.sign {{ margin:15mm 0 0 auto; width:78mm; text-align:center; }}
+.place {{ margin-top:auto; padding-top:4mm; text-align:right; font-size:9.8pt; }}
+.sign {{ margin:{'1mm' if FIRMA else '15mm'} 0 0 auto; width:78mm; text-align:center; }}
+.sign .firma {{ display:block; height:24mm; margin:0 auto -1.5mm; }}
 .sign .line {{ border-top:.4mm solid var(--navy); padding-top:2mm; }}
 .sign b {{ font-family:'Poppins'; font-size:11pt; color:var(--navy); display:block; }}
 .sign span {{ font-size:9pt; color:var(--muted); display:block; }}
-footer {{ margin:7mm 6mm 6mm; border-radius:0 0 4mm 4mm; background:var(--navy); color:#cfd9e6; font-size:8pt; padding:3.6mm 12mm;
+footer {{ margin:5mm 6mm 6mm; border-radius:0 0 4mm 4mm; background:var(--navy); color:#cfd9e6; font-size:8pt; padding:3.6mm 12mm;
   display:flex; justify-content:space-between; gap:4mm; }}
 footer b {{ color:#fff; }}
 </style></head><body><div class="page">
@@ -163,7 +167,7 @@ footer b {{ color:#fff; }}
     {PROX}
   </div>
   <p class="place">Lima, {larga(emision)}</p>
-  <div class="sign"><div class="line"><b>{E(D["firmante"])}</b><span>{E(D["cargo"])}</span><span>AIRCONSOLUTION SERVICES S.A.C.</span></div></div>
+  <div class="sign">{FIRMA}<div class="line"><b>{E(D["firmante"])}</b><span>{E(D["cargo"])}</span><span>AIRCONSOLUTION SERVICES S.A.C.</span></div></div>
 </main>
 <footer><span><b>Teléfonos:</b> 985 899 731 · 990 073 634</span><span><b>Correo:</b> aircon82@gmail.com</span><span><b>Web:</b> airconsolutionsac.com</span></footer>
 </div></body></html>"""
