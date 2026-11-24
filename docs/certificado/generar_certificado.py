@@ -6,7 +6,7 @@ Uso:  python3 docs/certificado/generar_certificado.py <logo-transparente.png> <c
 datos.json:
 {
   "archivo": "certificado-cliente", "numero": "CERT-2026-0001",
-  "fecha_emision": "2026-11-24", "fecha_servicio": "2026-11-23", "proximo_meses": 6,
+  "fecha_emision": "2026-11-24", "fecha_servicio": "2026-11-23", "proximo_meses": 6,  (0 u omitido: sin próximo mantenimiento)
   "cliente": {"nombre": "...", "ruc": "...", "direccion": "..."},
   "equipos": [["Ubicación", "Marca", "Tipo", "Capacidad"], ...],   (o "cantidad_equipos": 2 si no hay detalle)
   "trabajos": ["Limpieza de filtros", ...],
@@ -60,7 +60,8 @@ LOGO = f"data:image/png;base64,{b64(logo_path)}"
 FONT_CSS = "".join([font("inter", w) for w in (400, 500, 600, 700)] + [font("poppins", w) for w in (600, 700, 800)])
 emision = dt.date.fromisoformat(D["fecha_emision"])
 servicio = dt.date.fromisoformat(D["fecha_servicio"])
-proximo = mas_meses(servicio, int(D.get("proximo_meses", 6)))
+MESES_PROX = int(D.get("proximo_meses") or 0)  # 0 o ausente: no se muestra el próximo mantenimiento
+proximo = mas_meses(servicio, MESES_PROX) if MESES_PROX else None
 C = D["cliente"]
 NOMBRES = ["", "un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"]
 n_eq = len(D["equipos"]) if D.get("equipos") else int(D["cantidad_equipos"])
@@ -76,6 +77,8 @@ else:
     equipos = ""
 
 trabajos = "".join(f"<li>{E(t)}</li>" for t in D["trabajos"])
+PROX = (f'<div class="box next"><div class="k">Próximo mantenimiento</div><div class="v">{MESES[proximo.month - 1].capitalize()} de {proximo.year}</div>'
+        f'<div class="s">Recomendado cada {MESES_PROX} meses</div></div>') if proximo else ""
 dir_cli = f"<dt>Dirección</dt><dd>{E(C['direccion'])}</dd>" if C.get("direccion") else ""
 
 HTML = f"""<!doctype html><html lang="es"><head><meta charset="utf-8">
@@ -123,6 +126,7 @@ li {{ break-inside:avoid; padding-left:5.5mm; position:relative; margin-bottom:1
 li::before {{ content:'✔'; position:absolute; left:0; color:var(--green); font-weight:700; }}
 .result {{ margin-top:5mm; display:grid; grid-template-columns:1fr 1fr; gap:4mm; }}
 .box {{ border-radius:3mm; padding:3.4mm 5mm; }}
+.result.solo {{ grid-template-columns:1fr; }}
 .ok {{ background:#eaf8f0; border:1px solid #bfe6cf; }} .next {{ background:#fff4e5; border:1px solid #fbd9b0; }}
 .box .k {{ font-family:'Poppins'; font-weight:700; font-size:7.6pt; letter-spacing:1.4px; text-transform:uppercase; }}
 .ok .k {{ color:var(--green); }} .next .k {{ color:#c2610a; }}
@@ -154,9 +158,9 @@ footer b {{ color:#fff; }}
     {f"<dt>Comprobante</dt><dd>{E(D['comprobante'])}</dd>" if D.get("comprobante") else ""}</dl></div>
   {f'<div class="card"><h3>Equipos atendidos</h3>{equipos}</div>' if equipos else ""}
   <div class="card"><h3>Trabajos realizados</h3><ul>{trabajos}</ul></div>
-  <div class="result">
+  <div class="result{'' if proximo else ' solo'}">
     <div class="box ok"><div class="k">Estado final</div><div class="v">✔ Equipos operativos</div><div class="s">Funcionamiento verificado al término del servicio</div></div>
-    <div class="box next"><div class="k">Próximo mantenimiento</div><div class="v">{MESES[proximo.month - 1].capitalize()} de {proximo.year}</div><div class="s">Recomendado cada {D.get("proximo_meses", 6)} meses</div></div>
+    {PROX}
   </div>
   <p class="place">Lima, {larga(emision)}</p>
   <div class="sign"><div class="line"><b>{E(D["firmante"])}</b><span>{E(D["cargo"])}</span><span>AIRCONSOLUTION SERVICES S.A.C.</span></div></div>
