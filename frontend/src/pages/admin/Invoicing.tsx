@@ -413,7 +413,7 @@ export function Invoicing({ auth, fromBooking, fromQuote, onUnauthorized }: Prop
                   <div>
                     <strong>{view.issuer.businessName}</strong>
                     <span>{view.issuer.address}</span>
-                    <span>Tel. {business.phoneDisplay} · {business.email}</span>
+                    <span>Tel. {business.phoneDisplay} · {business.email} · {business.email2}</span>
                   </div>
                 </div>
                 <div className="box">

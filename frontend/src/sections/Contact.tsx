@@ -103,9 +103,9 @@ export function Contact() {
                 <span className="ic"><Icon name="whatsapp" /></span>
                 <span><small>WhatsApp</small><strong>Escríbenos ahora</strong></span>
               </a>
-              <a className="tile" href={`mailto:${business.email}`} data-reveal="left" style={delay(160)}>
+              <a className="tile mail" href={`mailto:${business.email}`} data-reveal="left" style={delay(160)}>
                 <span className="ic"><Icon name="mail" /></span>
-                <span><small>Correo</small><strong>{business.email}</strong></span>
+                <span><small>Correo</small><strong>{business.email}</strong><em>{business.email2}</em></span>
               </a>
               <a className="tile" href={business.mapLink} target="_blank" rel="noopener" data-reveal="left" style={delay(240)}>
                 <span className="ic"><Icon name="pin" /></span>

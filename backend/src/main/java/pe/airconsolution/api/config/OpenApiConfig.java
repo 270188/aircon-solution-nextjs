@@ -21,7 +21,7 @@ public class OpenApiConfig {
                         .title("AIRCONSOLUTION SERVICES SAC API")
                         .version("v1")
                         .description("Reservas de servicio técnico, mensajes de contacto, boletín y panel de administración.")
-                        .contact(new Contact().name("AIRCONSOLUTION SERVICES SAC").email("aircon82@gmail.com")))
+                        .contact(new Contact().name("AIRCONSOLUTION SERVICES SAC").email("contacto@airconsolutionsac.com")))
                 .components(new Components().addSecuritySchemes("basicAuth",
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")));
     }

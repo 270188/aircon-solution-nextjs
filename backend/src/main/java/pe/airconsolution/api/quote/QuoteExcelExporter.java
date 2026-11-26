@@ -50,7 +50,7 @@ public class QuoteExcelExporter {
     public QuoteExcelExporter(AppProperties props) {
         this.issuer = props.invoicing();
         this.phones = "Tel. +51 985 899 731 / +51 990 073 634";
-        this.email = "aircon82@gmail.com";
+        this.email = "contacto@airconsolutionsac.com · ventas@airconsolutionsac.com";
     }
 
     public byte[] export(Quote q) {

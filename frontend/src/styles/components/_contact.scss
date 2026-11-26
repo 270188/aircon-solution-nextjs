@@ -40,6 +40,13 @@
     font-size: 1rem;
     word-break: break-word;
   }
+  /* Los correos son largos: en el celular van un poco más pequeños para que entren en una línea. */
+  &.mail strong,
+  &.mail em {
+    font-size: clamp(0.8rem, 3.6vw, 1rem);
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
   em {
     display: block;
     font-style: normal;

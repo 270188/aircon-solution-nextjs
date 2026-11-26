@@ -14,7 +14,8 @@ export const business = {
   phoneDisplay: '+51 985 899 731',
   phone2: '+51990073634',
   phone2Display: '+51 990 073 634',
-  email: 'aircon82@gmail.com',
+  email: 'contacto@airconsolutionsac.com',
+  email2: 'ventas@airconsolutionsac.com',
   address: 'Calle 20 Mz. 28 Lt. 17 A.H. Laura Caller, Los Olivos, Lima',
   hours: 'Lun – Sáb: 8:00 a.m. – 6:00 p.m. · Emergencias 24/7',
   // Para Google: dirección separada y horario en formato estándar.

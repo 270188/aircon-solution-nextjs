@@ -118,7 +118,7 @@ function fallbackContent(): string {
         ${esc(business.name)} · RUC ${business.ruc}<br>
         ${esc(business.address)}<br>
         Teléfono / WhatsApp: <a href="tel:${business.phone}">${esc(business.phoneDisplay)}</a> · <a href="tel:${business.phone2}">${esc(business.phone2Display)}</a><br>
-        Correo: <a href="mailto:${business.email}">${esc(business.email)}</a><br>
+        Correo: <a href="mailto:${business.email}">${esc(business.email)}</a> · <a href="mailto:${business.email2}">${esc(business.email2)}</a><br>
         Horario: ${esc(business.hours)}
       </address>
       <nav><a href="/seguimiento">Seguir mi reserva</a> · <a href="/privacidad">Política de privacidad</a></nav>

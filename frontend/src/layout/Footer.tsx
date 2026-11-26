@@ -78,6 +78,7 @@ export function Footer() {
               <li><Icon name="phone" size={18} /><a href={`tel:${business.phone}`}>{business.phoneDisplay}</a></li>
               <li><Icon name="phone" size={18} /><a href={`tel:${business.phone2}`}>{business.phone2Display}</a></li>
               <li><Icon name="mail" size={18} /><a href={`mailto:${business.email}`}>{business.email}</a></li>
+              <li><Icon name="mail" size={18} /><a href={`mailto:${business.email2}`}>{business.email2}</a></li>
               <li><Icon name="pin" size={18} /><span>{business.address}</span></li>
               <li><Icon name="clock" size={18} /><span>{business.hours}</span></li>
             </ul>
