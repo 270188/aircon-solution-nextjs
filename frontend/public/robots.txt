@@ -3,5 +3,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/
+Disallow: /agenda
 
 Sitemap: https://airconsolutionsac.com/sitemap.xml
