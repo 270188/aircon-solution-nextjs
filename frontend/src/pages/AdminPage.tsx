@@ -18,12 +18,13 @@ import { CountUp } from '../shared/CountUp';
 import { longDate, prettyTime } from '../shared/dates';
 import { dmy, dmyHm, download } from '../shared/format';
 import { Icon } from '../shared/Icon';
+import { Agenda } from './admin/Agenda';
 import { Invoicing } from './admin/Invoicing';
 import { Quotes } from './admin/Quotes';
 
 const SESSION_KEY = 'acs-admin';
 const STATUSES: BookingStatus[] = ['PENDIENTE', 'CONFIRMADA', 'EN_PROCESO', 'COMPLETADA', 'CANCELADA'];
-type Tab = 'reservas' | 'mensajes' | 'suscriptores' | 'cotizaciones' | 'facturacion';
+type Tab = 'agenda' | 'reservas' | 'mensajes' | 'suscriptores' | 'cotizaciones' | 'facturacion';
 
 function whatsapp(phone: string, code: string): string {
   const digits = phone.replace(/\D/g, '');
@@ -39,7 +40,7 @@ export function AdminPage() {
   const [password, setPassword] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
 
-  const [tab, setTab] = useState<Tab>('reservas');
+  const [tab, setTab] = useState<Tab>('agenda');
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [filter, setFilter] = useState<BookingStatus | ''>('');
   const [bookings, setBookings] = useState<Page<AdminBooking> | null>(null);
@@ -158,7 +159,7 @@ export function AdminPage() {
         <div className="container">
           <form className="card login" onSubmit={login} onFocusCapture={() => void wakeApi()}>
             <h1>Panel AIRCONSOLUTION SERVICES SAC</h1>
-            <p>Ingresa con tu usuario de administrador.</p>
+            <p>Solo para el equipo de la empresa. Ingresa con tu usuario y contraseña.</p>
             <div className="field">
               <input id="adm-user" name="user" value={username} onChange={(e) => setUsername(e.target.value)} placeholder=" " autoComplete="username" required />
               <label htmlFor="adm-user">Usuario</label>
@@ -177,7 +178,8 @@ export function AdminPage() {
   }
 
   const tabs: [Tab, string][] = [
-    ['reservas', 'Reservas'],
+    ['agenda', 'Agenda'],
+    ['reservas', 'Todas las reservas'],
     ['mensajes', 'Mensajes'],
     ['suscriptores', 'Suscriptores'],
     ['cotizaciones', 'Cotizaciones'],
@@ -188,14 +190,14 @@ export function AdminPage() {
     <div className="c-admin-page">
       <div className="container">
         <div className="bar">
-          <h1>Panel de <span className="text-gradient">reservas</span></h1>
+          <h1>Agenda <span className="text-gradient">AIRCON</span></h1>
           <div className="actions">
             <button className="btn btn-outline btn-sm" type="button" onClick={() => loadAll(auth)}><Icon name="refresh" size={16} /> Actualizar</button>
             <button className="btn btn-outline btn-sm" type="button" onClick={logout}><Icon name="logout" size={16} /> Salir</button>
           </div>
         </div>
 
-        {stats && (
+        {stats && tab !== 'agenda' && (
           <div className="kpis">
             <div className="kpi hl"><strong><CountUp value={stats.upcomingBookings} duration={900} /></strong><span>Próximas visitas</span></div>
             <div className="kpi"><strong><CountUp value={stats.bookingsByStatus.PENDIENTE} duration={900} /></strong><span>Por confirmar</span></div>
@@ -213,6 +215,8 @@ export function AdminPage() {
             </button>
           ))}
         </div>
+
+        {tab === 'agenda' && <Agenda auth={auth} onUnauthorized={logout} onChanged={() => loadStats(auth)} />}
 
         {tab === 'reservas' && (
           <>

@@ -65,6 +65,51 @@ export interface AdminBooking {
   createdAt: string;
 }
 
+/** Cita en la agenda del panel (una reserva de la web o una cita que agendó el equipo). */
+export interface AgendaBooking extends AdminBooking {
+  serviceId: ServiceId;
+  updatedAt: string;
+  clientId: number | null;
+  technician: string | null;
+  amount: number | null;
+  source: 'WEB' | 'PANEL';
+}
+
+export interface AgendaInput {
+  name: string;
+  phone: string;
+  email?: string | null;
+  address: string;
+  district: string | null;
+  service: ServiceId;
+  description: string | null;
+  date: string;
+  time: string;
+  status: BookingStatus;
+  adminNotes: string | null;
+  clientId: number | null;
+  technician: string | null;
+  amount: number | null;
+}
+
+/** Ficha de un cliente para recordarle su mantenimiento. */
+export interface Client {
+  id: number;
+  name: string;
+  phone: string | null;
+  district: string | null;
+  address: string | null;
+  equipment: string | null;
+  installedOn: string | null;
+  lastMaintenance: string | null;
+  frequencyMonths: number;
+  lastReminder: string | null;
+  notes: string | null;
+  createdAt: string;
+}
+
+export type ClientInput = Omit<Client, 'id' | 'createdAt'>;
+
 export interface ContactMessage {
   id: number;
   name: string;
@@ -243,7 +288,7 @@ export class ApiError extends Error {
 type Query = Record<string, string | number | undefined | null>;
 
 /*
- * El servidor gratuito se apaga cuando nadie lo usa y tarda hasta un minuto en encenderse.
+ * Antes el servidor gratuito se apagaba cuando nadie lo usaba (hoy la API corre en Netlify y responde al instante).
  * Antes de cada llamada se confirma que está encendido (si no se habló con él hace poco), así
  * los formularios no fallan ni se envían dos veces mientras arranca.
  */
@@ -323,6 +368,17 @@ export const api = {
   adminContacts: (auth: string, page: number) => request<Page<ContactMessage>>('GET', '/admin/contacts', { auth, query: { page, size: 15 } }),
   adminMarkRead: (auth: string, id: number) => request<ContactMessage>('PATCH', `/admin/contacts/${id}/read`, { auth, body: {} }),
   adminSubscribers: (auth: string) => request<Page<Subscriber>>('GET', '/admin/subscribers', { auth, query: { size: 200 } }),
+
+  // ---- Agenda y clientes ----
+  agenda: (auth: string) => request<AgendaBooking[]>('GET', '/admin/agenda', { auth }),
+  createAppointment: (auth: string, body: AgendaInput) => request<AgendaBooking>('POST', '/admin/agenda', { auth, body }),
+  updateAppointment: (auth: string, id: number, body: AgendaInput) => request<AgendaBooking>('PUT', `/admin/agenda/${id}`, { auth, body }),
+  deleteAppointment: (auth: string, id: number) => request<{ ok: boolean }>('DELETE', `/admin/agenda/${id}`, { auth }),
+  clients: (auth: string) => request<Client[]>('GET', '/admin/clients', { auth }),
+  createClient: (auth: string, body: ClientInput) => request<Client>('POST', '/admin/clients', { auth, body }),
+  updateClient: (auth: string, id: number, body: ClientInput) => request<Client>('PUT', `/admin/clients/${id}`, { auth, body }),
+  deleteClient: (auth: string, id: number) => request<{ ok: boolean }>('DELETE', `/admin/clients/${id}`, { auth }),
+  clientReminded: (auth: string, id: number) => request<Client>('POST', `/admin/clients/${id}/reminded`, { auth, body: {} }),
 
   // ---- Facturación ----
   invoicingSettings: (auth: string) => request<InvoicingSettings>('GET', '/admin/invoices/settings', { auth }),

@@ -1,0 +1,16 @@
+{
+  "name": "Agenda AIRCONSOLUTION SERVICES SAC",
+  "short_name": "Agenda AIRCON",
+  "description": "Citas, clientes y mantenimientos del equipo de AIRCONSOLUTION SERVICES SAC",
+  "id": "/admin",
+  "start_url": "/admin",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d1b2e",
+  "theme_color": "#0d1b2e",
+  "lang": "es-PE",
+  "icons": [
+    { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

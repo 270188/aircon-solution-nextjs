@@ -235,6 +235,9 @@ function writePages(outDir: string): void {
     if (seo.noindex) {
       html = html.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex, nofollow">');
     }
+    // El panel se instala en el celular como su propia app («Agenda AIRCON»), que abre directo en /admin.
+    if (path === '/admin') html = html.replace('<link rel="manifest" href="/manifest.webmanifest">', '<link rel="manifest" href="/admin.webmanifest">')
+      .replace('</head>', '  <meta name="apple-mobile-web-app-title" content="Agenda AIRCON">\n  <meta name="apple-mobile-web-app-capable" content="yes">\n</head>');
     for (const must of [seo.title, url]) {
       if (!html.includes(esc(must))) throw new Error(`SEO: falta "${must}" en ${path}.html`);
     }

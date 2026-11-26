@@ -1,5 +1,5 @@
-# Página web en Netlify (gratis, no se duerme). El backend Spring Boot (reservas, contacto,
-# panel, facturas y cotizaciones) sigue en Render; Netlify le reenvía las rutas /api/*.
+# Página web en Netlify (gratis, no se duerme). La API de reservas, contacto, panel y agenda corre en
+# Netlify Functions con la base de datos Neon; cotizaciones y facturas siguen en Spring Boot (Render).
 
 [build]
   base = "frontend"
@@ -9,23 +9,53 @@
 [build.environment]
   NODE_VERSION = "22"
 
+[functions]
+  directory = "netlify/functions"
+
 # --- Backend: Netlify reenvía estas rutas al servidor (la dirección del navegador no cambia) ---
+# Cotizaciones y facturación electrónica siguen en el servidor Spring Boot de Render.
+[[redirects]]
+  from = "/api/v1/admin/quotes/*"
+  to = "https://airconsolution-ftc6.onrender.com/api/v1/admin/quotes/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/v1/admin/quotes"
+  to = "https://airconsolution-ftc6.onrender.com/api/v1/admin/quotes"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/v1/admin/invoices/*"
+  to = "https://airconsolution-ftc6.onrender.com/api/v1/admin/invoices/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/v1/admin/invoices"
+  to = "https://airconsolution-ftc6.onrender.com/api/v1/admin/invoices"
+  status = 200
+  force = true
+
+# Todo lo demás (reservas, contacto, boletín, panel y agenda) lo atiende la función de Netlify,
+# siempre encendida, con la misma base de datos Neon (netlify/functions/api.mts).
 [[redirects]]
   from = "/api/*"
-  to = "https://airconsolution-ftc6.onrender.com/api/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
   from = "/actuator/health"
-  to = "https://airconsolution-ftc6.onrender.com/actuator/health"
+  to = "/.netlify/functions/api/health"
   status = 200
   force = true
 
 # --- Agenda interna de la empresa (citas, clientes, mantenimientos) ---
 [[redirects]]
   from = "/agenda"
-  to = "https://claude.ai/artifact/PM5aFu7JiPg2fHwJc7Jcki"
+  to = "/admin"
   status = 302
   force = true
 

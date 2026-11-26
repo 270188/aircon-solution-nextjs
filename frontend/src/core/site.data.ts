@@ -508,8 +508,8 @@ export const pageSeo: Record<string, { title: string; description: string; noind
     description: 'Cómo protegemos tus datos personales según la Ley N.° 29733 de Protección de Datos Personales del Perú.',
   },
   '/admin': {
-    title: 'Panel | AIRCONSOLUTION SERVICES SAC',
-    description: 'Panel interno de administración.',
+    title: 'Agenda AIRCON | AIRCONSOLUTION SERVICES SAC',
+    description: 'Agenda interna del equipo: citas, clientes y mantenimientos.',
     noindex: true,
   },
   ...Object.fromEntries(servicePages.map((p) => [`/${p.slug}`, { title: p.seoTitle, description: p.seoDescription }])),
