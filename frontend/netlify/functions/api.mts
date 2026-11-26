@@ -7,6 +7,8 @@
  *
  * Variables de entorno (en Netlify): DATABASE_URL, ADMIN_USERS ("usuario:clave,usuario2:clave2") y, para entrar con
  * Google, GOOGLE_CLIENT_ID, ADMIN_GOOGLE_EMAILS (correos autorizados, separados por comas) y SESSION_SECRET.
+ * El ID de cliente se crea en console.cloud.google.com → Google Auth Platform → Clientes (aplicación web, con
+ * https://airconsolutionsac.com como origen autorizado). Netlify toma las variables nuevas al volver a publicar.
  */
 import { neon } from '@neondatabase/serverless';
 
