@@ -139,6 +139,17 @@ rows = "\n".join(
     for i, (t, d, q, u, p) in enumerate(ITEMS, 1)
 )
 
+# "compacto": true junta las filas para que una cotización con muchas partidas entre en una sola hoja.
+COMPACTO = """
+tbody td { padding: 1.2mm 3mm; }
+td.desc span { margin-top: 0; font-size: 7.8pt; }
+main { gap: 2.6mm; }
+.card { padding: 2.6mm 5mm; }
+.kv { gap: .3mm 2mm; font-size: 8.4pt; }
+.term { padding: 2mm 3mm; line-height: 1.3; }
+.sum { margin-top: -1mm; }
+""" if D.get("compacto") else ""
+
 HTML = f"""<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <title>Cotización {E(D["numero"])} · AIRCONSOLUTION SERVICES SAC</title>
@@ -238,6 +249,7 @@ footer {{ background: var(--navy); color: #cfd9e6; padding: 4.2mm 14mm; font-siz
   display: flex; justify-content: space-between; gap: 4mm; }}
 footer b {{ color: #fff; font-weight: 600; }}
 footer .web {{ color: var(--orange); font-weight: 700; }}
+{COMPACTO}
 </style></head>
 <body><div class="page">
   <div class="watermark"><img src="{LOGO}" alt=""></div>
