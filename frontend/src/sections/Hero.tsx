@@ -75,7 +75,7 @@ export function Hero() {
   return (
     <div className="c-hero" style={{ display: 'contents' }}>
       <section className="hero" id="inicio" aria-labelledby="hero-title">
-        {/* Fondo: el video de instalación (en pantallas anchas, difuminado detrás del video principal). */}
+        {/* Fondo: el video del técnico instalando un aire acondicionado, a pantalla completa. */}
         <div className="bg" data-parallax="-0.25">
           <HeroVideo className="bg-video" />
         </div>
@@ -123,10 +123,6 @@ export function Hero() {
             <li><Icon name="clock" size={18} /> Respuesta el mismo día</li>
             <li><Icon name="checkCircle" size={18} /> Todas las marcas</li>
           </ul>
-        </div>
-
-        <div className="video-panel" aria-hidden="true">
-          <HeroVideo className="panel-video" />
         </div>
 
         <div className="floating">
