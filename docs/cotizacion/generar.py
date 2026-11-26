@@ -113,6 +113,13 @@ subtotal = sum(q * p for _, _, q, _, p in ITEMS if p is not None)
 CON_IGV = D.get("igv", True)
 igv = round(subtotal * 0.18, 2) if CON_IGV else 0.0
 total = round(subtotal + igv, 2)
+# "total_con_igv": total exacto pedido (p. ej. 3200). Como en los comprobantes con precio que incluye IGV,
+# el IGV es la diferencia entre ese total y el subtotal de las partidas (que debe ser total / 1.18).
+if D.get("total_con_igv"):
+    total = round(float(D["total_con_igv"]), 2)
+    if abs(subtotal - round(total / 1.18, 2)) > 0.005:
+        raise SystemExit(f"Las partidas suman {subtotal:.2f}; para un total de {total:.2f} deben sumar {total / 1.18:.2f}")
+    igv = round(total - subtotal, 2)
 fecha = dt.date.fromisoformat(D["fecha"])
 valida = fecha + dt.timedelta(days=int(D["validez_dias"]))
 C = {k: html.escape(str(v)) for k, v in D["cliente"].items()}
