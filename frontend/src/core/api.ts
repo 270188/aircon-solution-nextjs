@@ -329,7 +329,8 @@ async function request<T>(method: string, path: string, opts: { body?: unknown; 
   }
   const headers: Record<string, string> = {};
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
-  if (opts.auth) headers['Authorization'] = `Basic ${opts.auth}`;
+  // `auth` es usuario:clave en Base64 (Basic) o, si entró con Google, «Bearer <sesión>».
+  if (opts.auth) headers['Authorization'] = opts.auth.startsWith('Bearer ') ? opts.auth : `Basic ${opts.auth}`;
   let res: Response;
   try {
     res = await fetch(url, { method, headers, body: opts.body === undefined ? undefined : JSON.stringify(opts.body) });
@@ -358,7 +359,11 @@ export const api = {
   sendContact: (body: ContactRequest) => request<{ ok: boolean; message: string }>('POST', '/contact', { body }),
   subscribe: (email: string, website = '') => request<{ ok: boolean; message: string }>('POST', '/newsletter', { body: { email, website } }),
 
-  // ---- Panel de administración (HTTP Basic) ----
+  // ---- Ingreso con Google ----
+  authConfig: () => request<{ googleClientId: string | null }>('GET', '/auth/config'),
+  googleLogin: (credential: string) => request<{ token: string; email: string }>('POST', '/auth/google', { body: { credential } }),
+
+  // ---- Panel de administración (usuario y contraseña, o sesión de Google) ----
   adminMe: (auth: string) => request<unknown>('GET', '/admin/me', { auth }),
   adminStats: (auth: string) => request<AdminStats>('GET', '/admin/stats', { auth }),
   adminBookings: (auth: string, status: BookingStatus | '', page: number) =>

@@ -5,11 +5,13 @@
  * mismos formatos, así la página y el panel funcionan igual. Las cotizaciones y la facturación
  * electrónica siguen en el servidor de Render (ver netlify.toml).
  *
- * Variables de entorno (en Netlify): DATABASE_URL y ADMIN_USERS ("usuario:clave,usuario2:clave2").
+ * Variables de entorno (en Netlify): DATABASE_URL, ADMIN_USERS ("usuario:clave,usuario2:clave2") y, para entrar con
+ * Google, GOOGLE_CLIENT_ID, ADMIN_GOOGLE_EMAILS (correos autorizados, separados por comas) y SESSION_SECRET.
  */
 import { neon } from '@neondatabase/serverless';
 
-const sql = neon(process.env.DATABASE_URL ?? '');
+// Sin DATABASE_URL la función responde 503 (ver abajo); la dirección de reemplazo solo evita que falle al cargar.
+const sql = neon(process.env.DATABASE_URL || 'postgresql://sin-configurar:x@localhost/sin-configurar');
 const ZONE = 'America/Lima';
 const SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'];
 const CAPACITY = Number(process.env.BOOKING_SLOT_CAPACITY ?? 2);
@@ -81,12 +83,11 @@ function timingSafeEqual(a: string, b: string): boolean {
   for (let i = 0; i < Math.max(a.length, b.length); i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
   return diff === 0;
 }
-function authorized(req: Request): boolean {
+function basicOk(header: string): boolean {
   const users = (process.env.ADMIN_USERS ?? '')
     .split(',')
     .map((u) => u.trim())
     .filter((u) => u.includes(':'));
-  const header = req.headers.get('authorization') ?? '';
   if (!users.length || !header.startsWith('Basic ')) return false;
   let given = '';
   try {
@@ -95,6 +96,36 @@ function authorized(req: Request): boolean {
     return false;
   }
   return users.some((u) => timingSafeEqual(u, given));
+}
+
+// ---------- ingreso con Google ----------
+// La página manda el token de Google; aquí se comprueba con Google, se revisa que el correo esté autorizado
+// (ADMIN_GOOGLE_EMAILS) y se entrega una sesión firmada con SESSION_SECRET que dura 12 horas.
+const SESSION_HOURS = 12;
+const googleEmails = () => (process.env.ADMIN_GOOGLE_EMAILS ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+const b64url = (buf: ArrayBuffer | Uint8Array) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+async function hmac(data: string): Promise<string> {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(process.env.SESSION_SECRET ?? ''), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return b64url(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data)));
+}
+async function issueSession(email: string): Promise<string> {
+  const payload = b64url(new TextEncoder().encode(JSON.stringify({ email, exp: Date.now() + SESSION_HOURS * 3_600_000 })));
+  return `${payload}.${await hmac(payload)}`;
+}
+async function sessionOk(header: string): Promise<boolean> {
+  if (!header.startsWith('Bearer ') || (process.env.SESSION_SECRET ?? '').length < 32) return false;
+  const [payload, sig] = header.slice(7).split('.');
+  if (!payload || !sig || !timingSafeEqual(sig, await hmac(payload))) return false;
+  try {
+    const { email, exp } = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0))));
+    return typeof exp === 'number' && exp > Date.now() && googleEmails().includes(String(email).toLowerCase());
+  } catch {
+    return false;
+  }
+}
+async function authorized(req: Request): Promise<boolean> {
+  const header = req.headers.get('authorization') ?? '';
+  return basicOk(header) || (await sessionOk(header));
 }
 
 // Columnas de una reserva en el formato que usa la página (fechas como texto, sin zonas horarias).
@@ -256,9 +287,27 @@ async function route(req: Request, path: string, url: URL): Promise<Response> {
     return json({ ok: true, message: '¡Listo! Recibirás nuestros consejos y promociones.' });
   }
 
-  // --- Panel (usuario y contraseña) ---
+  // --- Ingreso con Google ---
+  if (path === 'v1/auth/config' && m === 'GET') {
+    const id = process.env.GOOGLE_CLIENT_ID ?? '';
+    return json({ googleClientId: id && googleEmails().length && (process.env.SESSION_SECRET ?? '').length >= 32 ? id : null });
+  }
+  if (path === 'v1/auth/google' && m === 'POST') {
+    const b = await body();
+    const clientId = process.env.GOOGLE_CLIENT_ID ?? '';
+    if (!clientId || (process.env.SESSION_SECRET ?? '').length < 32) throw new HttpError(503, 'El ingreso con Google no está configurado.');
+    const r = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(str(b.credential)));
+    const t = (r.ok ? await r.json() : {}) as Record<string, string>;
+    const email = String(t.email ?? '').toLowerCase();
+    const valid = r.ok && t.aud === clientId && ['accounts.google.com', 'https://accounts.google.com'].includes(t.iss) && t.email_verified === 'true' && Number(t.exp) * 1000 > Date.now();
+    if (!valid) throw new HttpError(401, 'No pudimos comprobar tu cuenta de Google. Inténtalo otra vez.');
+    if (!googleEmails().includes(email)) throw new HttpError(403, `La cuenta ${email} no tiene permiso para entrar al panel.`);
+    return json({ token: await issueSession(email), email, expiresInHours: SESSION_HOURS });
+  }
+
+  // --- Panel (usuario y contraseña, o sesión de Google) ---
   if (!path.startsWith('v1/admin/')) throw new HttpError(404, 'No encontrado.');
-  if (!authorized(req)) {
+  if (!(await authorized(req))) {
     return new Response(JSON.stringify({ detail: 'Usuario o contraseña incorrectos.' }), {
       status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
     });

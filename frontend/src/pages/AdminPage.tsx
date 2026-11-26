@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   ApiError,
@@ -23,6 +23,14 @@ import { Invoicing } from './admin/Invoicing';
 import { Quotes } from './admin/Quotes';
 
 const SESSION_KEY = 'acs-admin';
+
+/** Lo que usamos de Google Identity Services (https://accounts.google.com/gsi/client). */
+interface GoogleId {
+  accounts: { id: {
+    initialize(o: { client_id: string; callback: (r: { credential: string }) => void }): void;
+    renderButton(el: HTMLElement, o: Record<string, unknown>): void;
+  } };
+}
 const STATUSES: BookingStatus[] = ['PENDIENTE', 'CONFIRMADA', 'EN_PROCESO', 'COMPLETADA', 'CANCELADA'];
 type Tab = 'agenda' | 'reservas' | 'mensajes' | 'suscriptores' | 'cotizaciones' | 'facturacion';
 
@@ -55,6 +63,12 @@ export function AdminPage() {
     sessionStorage.removeItem(SESSION_KEY);
     setAuth(null);
   }, []);
+
+  // Cotizaciones y facturas siguen en el servidor anterior, que solo acepta usuario y contraseña.
+  const legacyUnauthorized = useCallback(() => {
+    if (auth?.startsWith('Bearer ')) ui.toast('info', 'Cotizaciones y facturas', 'Para esta sección ingresa con usuario y contraseña.');
+    else logout();
+  }, [auth, logout]);
 
   const handle = useCallback(
     (err: unknown) => {
@@ -92,6 +106,46 @@ export function AdminPage() {
   useEffect(() => {
     if (auth) loadAll(auth);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth]);
+
+  // ---- Ingreso con Google (solo los correos autorizados en el servidor) ----
+  const googleBox = useRef<HTMLDivElement>(null);
+  const [googleReady, setGoogleReady] = useState(false);
+  useEffect(() => {
+    if (auth) return;
+    let cancelled = false;
+    api.authConfig().then(({ googleClientId }) => {
+      if (!googleClientId || cancelled) return;
+      const start = () => {
+        const g = (window as unknown as { google?: GoogleId }).google;
+        if (!g || cancelled || !googleBox.current) return;
+        g.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: async ({ credential }) => {
+            setLoggingIn(true);
+            try {
+              const { token } = await api.googleLogin(credential);
+              const bearer = `Bearer ${token}`;
+              sessionStorage.setItem(SESSION_KEY, bearer);
+              setAuth(bearer);
+            } catch (err) {
+              ui.toast('error', 'No se pudo ingresar con Google', describeError(err).message);
+            } finally {
+              setLoggingIn(false);
+            }
+          },
+        });
+        g.accounts.id.renderButton(googleBox.current, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', locale: 'es', width: 300 });
+        setGoogleReady(true);
+      };
+      if ((window as unknown as { google?: GoogleId }).google) return start();
+      const sc = document.createElement('script');
+      sc.src = 'https://accounts.google.com/gsi/client';
+      sc.async = true;
+      sc.onload = start;
+      document.head.appendChild(sc);
+    }, () => {});
+    return () => { cancelled = true; };
   }, [auth]);
 
   const login = async (e: React.FormEvent) => {
@@ -171,6 +225,10 @@ export function AdminPage() {
             <button className="btn btn-primary btn-block" type="submit" disabled={loggingIn || !username || !password}>
               {loggingIn ? <span className="spinner"></span> : 'Ingresar'}
             </button>
+            <div className="google-login" hidden={!googleReady}>
+              <span className="or">o</span>
+              <div ref={googleBox}></div>
+            </div>
           </form>
         </div>
       </div>
@@ -320,12 +378,12 @@ export function AdminPage() {
           <Quotes
             auth={auth}
             fromBooking={quoting}
-            onUnauthorized={logout}
+            onUnauthorized={legacyUnauthorized}
             onBill={(q) => { setBilling(null); setBillingQuote({ ...q }); setTab('facturacion'); }}
           />
         )}
 
-        {tab === 'facturacion' && <Invoicing auth={auth} fromBooking={billing} fromQuote={billingQuote} onUnauthorized={logout} />}
+        {tab === 'facturacion' && <Invoicing auth={auth} fromBooking={billing} fromQuote={billingQuote} onUnauthorized={legacyUnauthorized} />}
 
         {tab === 'suscriptores' && subscribers && (
           <ul className="subs">

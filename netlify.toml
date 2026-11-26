@@ -74,7 +74,7 @@
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; frame-src https://maps.google.com https://www.google.com; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; font-src 'self'; img-src 'self' data: blob: https://*.googleusercontent.com; connect-src 'self' https://accounts.google.com/gsi/; frame-src https://maps.google.com https://www.google.com https://accounts.google.com/gsi/; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'"
 
 # El panel nunca aparece en Google.
 [[headers]]
