@@ -142,7 +142,8 @@ li::before {{ content:'✔'; position:absolute; left:0; color:var(--green); font
 .sign b {{ font-family:'Poppins'; font-size:11pt; color:var(--navy); display:block; }}
 .sign span {{ font-size:9pt; color:var(--muted); display:block; }}
 footer {{ margin:5mm 6mm 6mm; border-radius:0 0 4mm 4mm; background:var(--navy); color:#cfd9e6; font-size:8pt; padding:3.6mm 12mm;
-  display:flex; justify-content:space-between; gap:4mm; }}
+  display:flex; flex-wrap:wrap; justify-content:center; gap:1mm 7mm; }}
+footer span {{ white-space:nowrap; }}
 footer b {{ color:#fff; }}
 </style></head><body><div class="page">
 <div class="wm"><img src="{LOGO}" alt=""></div><div class="frame"></div>
@@ -169,7 +170,7 @@ footer b {{ color:#fff; }}
   <p class="place">Lima, {larga(emision)}</p>
   <div class="sign">{FIRMA}<div class="line"><b>{E(D["firmante"])}</b><span>{E(D["cargo"])}</span><span>AIRCONSOLUTION SERVICES S.A.C.</span></div></div>
 </main>
-<footer><span><b>Teléfonos:</b> 985 899 731 · 990 073 634</span><span><b>Correo:</b> aircon82@gmail.com</span><span><b>Web:</b> airconsolutionsac.com</span></footer>
+<footer><span><b>Teléfonos:</b> 985 899 731 · 990 073 634</span><span><b>Correo:</b> contacto@airconsolutionsac.com · ventas@airconsolutionsac.com</span><span><b>Web:</b> airconsolutionsac.com</span></footer>
 </div></body></html>"""
 
 h = out_dir / f"{D['archivo']}.html"

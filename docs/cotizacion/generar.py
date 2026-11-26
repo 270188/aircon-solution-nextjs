@@ -298,7 +298,7 @@ footer .web {{ color: var(--orange); font-weight: 700; }}
         <dl class="kv">
           <dt>Dirección</dt><dd>Calle 20 Mz. 28 Lt. 17 A.H. Laura Caller, Los Olivos, Lima</dd>
           <dt>Teléfonos</dt><dd>985 899 731 · 990 073 634</dd>
-          <dt>Correo</dt><dd>aircon82@gmail.com</dd>
+          <dt>Correo</dt><dd>contacto@airconsolutionsac.com<br>ventas@airconsolutionsac.com</dd>
           <dt>Web</dt><dd>airconsolutionsac.com</dd>
         </dl>
       </div>

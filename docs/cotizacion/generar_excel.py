@@ -184,7 +184,7 @@ ws["A11"].font = f(12, True, NAVY)
 client = [("RUC / DNI", "20XXXXXXXXX"), ("Atención", "Sr(a). Nombre del contacto"),
           ("Dirección", "Av. Ejemplo 123, Lima"), ("Teléfono", "9XX XXX XXX")]
 issuer = [("Dirección", "Calle 20 Mz. 28 Lt. 17 A.H. Laura Caller, Los Olivos, Lima"),
-          ("Teléfonos", "985 899 731 · 990 073 634"), ("Correo", "aircon82@gmail.com"),
+          ("Teléfonos", "985 899 731 · 990 073 634"), ("Correo", "contacto@airconsolutionsac.com · ventas@airconsolutionsac.com"),
           ("Web", "airconsolutionsac.com")]
 for i, (k, v) in enumerate(client):
     r = 12 + i
