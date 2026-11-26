@@ -40,6 +40,31 @@ function useTypewriter(): string {
   return typed;
 }
 
+/**
+ * Video del técnico instalando un aire acondicionado. Sin sonido y en bucle; si el usuario prefiere
+ * menos movimiento, solo se muestra la primera imagen (poster).
+ */
+function HeroVideo({ className }: { className: string }) {
+  const still = prefersReducedMotion();
+  return (
+    <video
+      className={className}
+      poster="/images/hero-video.webp"
+      autoPlay={!still}
+      muted
+      loop
+      playsInline
+      preload={still ? 'none' : 'auto'}
+      disablePictureInPicture
+      aria-hidden="true"
+      tabIndex={-1}
+    >
+      <source src="/videos/hero.webm" type="video/webm" />
+      <source src="/videos/hero.mp4" type="video/mp4" />
+    </video>
+  );
+}
+
 export function Hero() {
   const typed = useTypewriter();
   const scroll = (id: string) => (e: React.MouseEvent) => {
@@ -50,11 +75,9 @@ export function Hero() {
   return (
     <div className="c-hero" style={{ display: 'contents' }}>
       <section className="hero" id="inicio" aria-labelledby="hero-title">
+        {/* Fondo: el video de instalación (en pantallas anchas, difuminado detrás del video principal). */}
         <div className="bg" data-parallax="-0.25">
-          <picture>
-            <source srcSet="images/hero.webp" type="image/webp" />
-            <img src="images/hero.jpg" alt="" fetchPriority="high" />
-          </picture>
+          <HeroVideo className="bg-video" />
         </div>
         <div className="overlay"></div>
         <div className="aurora"><span></span><span></span><span></span></div>
@@ -100,6 +123,10 @@ export function Hero() {
             <li><Icon name="clock" size={18} /> Respuesta el mismo día</li>
             <li><Icon name="checkCircle" size={18} /> Todas las marcas</li>
           </ul>
+        </div>
+
+        <div className="video-panel" aria-hidden="true">
+          <HeroVideo className="panel-video" />
         </div>
 
         <div className="floating">
