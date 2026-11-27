@@ -18,7 +18,7 @@ COPY --from=web /web/dist/ ./src/main/resources/static/
 RUN mvn -B -q package -DskipTests
 
 # ---- 3. Ejecución ----
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
 COPY --from=api /app/target/airconsolution-api.jar app.jar
