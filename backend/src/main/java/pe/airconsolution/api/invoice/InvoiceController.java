@@ -5,7 +5,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,9 +66,34 @@ public class InvoiceController {
     }
 
     @PostMapping("/{id}/send")
-    @Operation(summary = "Enviar (o reintentar) un comprobante a SUNAT vía Nubefact")
+    @Operation(summary = "Enviar (o reintentar) un comprobante a SUNAT")
     public InvoiceResponse send(@PathVariable Long id) {
         return service.send(id);
+    }
+
+    @PostMapping("/{id}/void/status")
+    @Operation(summary = "Consultar en SUNAT una anulación en proceso")
+    public InvoiceResponse checkVoid(@PathVariable Long id) {
+        return service.checkVoid(id);
+    }
+
+    @GetMapping("/{id}/xml")
+    @Operation(summary = "Descargar el XML firmado")
+    public ResponseEntity<byte[]> xml(@PathVariable Long id) {
+        return download(service.xml(id));
+    }
+
+    @GetMapping("/{id}/cdr")
+    @Operation(summary = "Descargar la constancia de recepción (CDR) de SUNAT")
+    public ResponseEntity<byte[]> cdr(@PathVariable Long id) {
+        return download(service.cdr(id));
+    }
+
+    private static ResponseEntity<byte[]> download(InvoiceService.Download d) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(d.fileName()).build().toString())
+                .contentType(MediaType.parseMediaType(d.contentType()))
+                .body(d.content());
     }
 
     @PostMapping("/{id}/void")

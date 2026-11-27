@@ -60,6 +60,22 @@ app:
     # Si ya emitiste comprobantes con estas series en otro sistema, indica aquí el siguiente número.
     first-number-factura: ${INVOICE_FIRST_NUMBER_FACTURA:1}
     first-number-boleta: ${INVOICE_FIRST_NUMBER_BOLETA:1}
-    # Ruta y token que entrega Nubefact. Si están vacíos, los comprobantes quedan como borrador.
+    # Canal de envío: SUNAT (directo), NUBEFACT, o vacío para elegir según lo que esté configurado.
+    # Si ninguno está configurado, los comprobantes quedan como borrador.
+    provider: ${INVOICE_PROVIDER:}
+    # Ruta y token que entrega Nubefact.
     nubefact-url: ${NUBEFACT_URL:}
     nubefact-token: ${NUBEFACT_TOKEN:}
+    # Envío directo a SUNAT (SEE - Del contribuyente).
+    sunat:
+      # BETA = ambiente de pruebas de SUNAT (sin validez tributaria). PRODUCCION = comprobantes reales.
+      mode: ${SUNAT_MODE:BETA}
+      # Usuario SOL secundario y su clave (solo PRODUCCION; en BETA se usa MODDATOS/moddatos).
+      sol-user: ${SUNAT_SOL_USER:}
+      sol-password: ${SUNAT_SOL_PASSWORD:}
+      # Certificado digital .pfx en Base64 (recomendado en Render) o ruta al archivo.
+      cert-base64: ${SUNAT_CERT_BASE64:}
+      cert-path: ${SUNAT_CERT_PATH:}
+      cert-password: ${SUNAT_CERT_PASSWORD:}
+      ubigeo: ${INVOICE_UBIGEO:150117}
+      establishment: ${INVOICE_ESTABLISHMENT_CODE:0000}

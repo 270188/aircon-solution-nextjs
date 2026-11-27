@@ -16,7 +16,7 @@ import {
 } from '../../core/api';
 import { business } from '../../core/site.data';
 import { ui } from '../../core/ui';
-import { dmy, money, qty } from '../../shared/format';
+import { dmy, download, money, qty } from '../../shared/format';
 import { Icon } from '../../shared/Icon';
 import { isValidDni, isValidRuc, lineTotals, lineTotalsPlusIgv } from '../../shared/peru';
 import { ItemsEditor, type ItemRow } from './ItemsEditor';
@@ -28,6 +28,7 @@ const STATUS_LABEL: Record<InvoiceStatus, string> = {
   ACEPTADA: 'Aceptada por SUNAT',
   RECHAZADA: 'Rechazada',
   ERROR_ENVIO: 'Error de envío',
+  BAJA_PENDIENTE: 'Anulación en proceso',
   ANULADA: 'Anulada',
 };
 const DOC_LABEL: Record<string, string> = { '6': 'RUC', '1': 'DNI', '4': 'C.E.', '-': 'Sin documento' };
@@ -231,11 +232,38 @@ export function Invoicing({ auth, fromBooking, fromQuote, onUnauthorized }: Prop
       const inv = await api.voidInvoice(auth, id, reason.trim());
       if (view?.id === id) setView(inv);
       load(list?.page ?? 0);
-      ui.toast('success', `${inv.fullNumber} anulado`);
+      if (inv.status === 'BAJA_PENDIENTE') ui.toast('info', `${inv.fullNumber}: anulación en proceso`, inv.sunatDescription ?? undefined);
+      else ui.toast('success', `${inv.fullNumber} anulado`);
     } catch (err) {
       fail(err);
     } finally {
       setBusyId(null);
+    }
+  };
+
+  const checkVoid = async (id: number) => {
+    setBusyId(id);
+    try {
+      const inv = await api.checkVoid(auth, id);
+      if (view?.id === id) setView(inv);
+      load(list?.page ?? 0);
+      if (inv.status === 'ANULADA') ui.toast('success', `${inv.fullNumber} anulado`);
+      else if (inv.status === 'BAJA_PENDIENTE') ui.toast('info', 'SUNAT aún procesa la anulación', inv.sunatDescription ?? undefined);
+      else ui.toast('error', `${inv.fullNumber}: no se anuló`, inv.sunatDescription ?? undefined);
+    } catch (err) {
+      fail(err);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const downloadFile = async (kind: 'xml' | 'cdr', inv: Invoice) => {
+    try {
+      const blob = kind === 'xml' ? await api.invoiceXml(auth, inv.id) : await api.invoiceCdr(auth, inv.id);
+      const base = `${inv.issuer.ruc}-${inv.type === 'FACTURA' ? '01' : '03'}-${inv.series}-${inv.number}`;
+      download(blob, kind === 'xml' ? `${base}.xml` : `R-${base}.zip`);
+    } catch (err) {
+      fail(err);
     }
   };
 
@@ -258,7 +286,8 @@ export function Invoicing({ auth, fromBooking, fromQuote, onUnauthorized }: Prop
           <p>
             <strong>Modo borrador.</strong> Los comprobantes se numeran y calculan correctamente, pero{' '}
             <strong>todavía no se envían a SUNAT</strong> y no tienen validez tributaria. Para emitirlos de forma electrónica, conecta tu
-            cuenta de Nubefact (variables <code>NUBEFACT_URL</code> y <code>NUBEFACT_TOKEN</code> en Render).
+            conexión directa con SUNAT (variables <code>SUNAT_CERT_BASE64</code>, <code>SUNAT_CERT_PASSWORD</code>,{' '}
+            <code>SUNAT_SOL_USER</code> y <code>SUNAT_SOL_PASSWORD</code> en Render) o tu cuenta de Nubefact.
           </p>
         </div>
       )}
@@ -269,6 +298,7 @@ export function Invoicing({ auth, fromBooking, fromQuote, onUnauthorized }: Prop
           {settings && (
             <p className="muted">
               {settings.issuer.businessName} · RUC {settings.issuer.ruc} · Series {settings.seriesFactura} / {settings.seriesBoleta}
+              {settings.electronicEnabled && <> · Envío: {settings.channel}</>}
             </p>
           )}
         </div>
@@ -394,8 +424,13 @@ export function Invoicing({ auth, fromBooking, fromQuote, onUnauthorized }: Prop
               <div className="bar-actions">
                 {view.pdfUrl && <a className="btn btn-outline btn-sm" href={view.pdfUrl} target="_blank" rel="noopener"><Icon name="download" size={16} /> PDF oficial</a>}
                 {canSend(view) && <button className="btn btn-primary btn-sm" type="button" disabled={busyId === view.id} onClick={() => send(view.id)}>Enviar a SUNAT</button>}
+                {view.hasXml && <button className="btn btn-outline btn-sm" type="button" onClick={() => downloadFile('xml', view)}>XML</button>}
+                {view.hasCdr && <button className="btn btn-outline btn-sm" type="button" onClick={() => downloadFile('cdr', view)}>CDR</button>}
+                {view.status === 'BAJA_PENDIENTE' && (
+                  <button className="btn btn-outline btn-sm" type="button" disabled={busyId === view.id} onClick={() => checkVoid(view.id)}>Consultar anulación</button>
+                )}
                 <button className="btn btn-outline btn-sm" type="button" onClick={print}><Icon name="download" size={16} /> Imprimir / PDF</button>
-                {view.status !== 'ANULADA' && (
+                {view.status !== 'ANULADA' && view.status !== 'BAJA_PENDIENTE' && (
                   <button className="btn btn-outline btn-sm danger" type="button" disabled={busyId === view.id} onClick={() => voidInvoice(view.id)}>Anular</button>
                 )}
                 <button type="button" className="x" onClick={() => setView(null)} aria-label="Cerrar"><Icon name="close" /></button>
