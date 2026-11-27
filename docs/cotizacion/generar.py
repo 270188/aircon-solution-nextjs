@@ -141,7 +141,7 @@ rows = "\n".join(
       <td class="n">{i:02d}</td>
       <td class="desc"><strong>{NB(E(t))}</strong><span>{NB(E(d)).replace(chr(10), "<br>")}</span></td>
       <td class="c">{q if isinstance(q, str) else format(q, "g")}</td><td class="c">{E(u)}</td>
-      <td class="r">{money(p) if p is not None else "Por definir"}</td><td class="r b">{money(q * p) if p is not None else "—"}</td>
+      <td class="r">{money(p) if p is not None else E(D.get("sin_precio", "Por definir"))}</td><td class="r b">{money(q * p) if p is not None else "—"}</td>
     </tr>"""
     for i, (t, d, q, u, p) in enumerate(ITEMS, 1)
 )
