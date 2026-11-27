@@ -97,6 +97,8 @@ public final class InvoiceDtos {
             String sunatDescription,
             String pdfUrl,
             String hash,
+            boolean hasXml,
+            boolean hasCdr,
             Instant createdAt,
             Issuer issuer,
             List<ItemResponse> items) {
@@ -115,6 +117,6 @@ public final class InvoiceDtos {
     }
 
     public record InvoicingSettings(Issuer issuer, String seriesFactura, String seriesBoleta,
-            boolean electronicEnabled) {
+            boolean electronicEnabled, String channel) {
     }
 }

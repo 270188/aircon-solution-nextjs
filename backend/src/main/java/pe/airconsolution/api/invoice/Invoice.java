@@ -88,6 +88,18 @@ public class Invoice {
     @Column(length = 100)
     private String hash;
 
+    /** XML firmado enviado a SUNAT (se debe conservar). */
+    @Column(name = "signed_xml", length = 200000)
+    private String signedXml;
+
+    /** Constancia de recepción de SUNAT (ZIP en Base64). */
+    @Column(name = "cdr_zip", length = 100000)
+    private String cdrZip;
+
+    /** Ticket de SUNAT de una anulación en proceso. */
+    @Column(name = "sunat_ticket", length = 40)
+    private String sunatTicket;
+
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("lineNo")
     private List<InvoiceItem> items = new ArrayList<>();
@@ -156,6 +168,12 @@ public class Invoice {
     public void setPdfUrl(String pdfUrl) { this.pdfUrl = pdfUrl; }
     public String getHash() { return hash; }
     public void setHash(String hash) { this.hash = hash; }
+    public String getSignedXml() { return signedXml; }
+    public void setSignedXml(String signedXml) { this.signedXml = signedXml; }
+    public String getCdrZip() { return cdrZip; }
+    public void setCdrZip(String cdrZip) { this.cdrZip = cdrZip; }
+    public String getSunatTicket() { return sunatTicket; }
+    public void setSunatTicket(String sunatTicket) { this.sunatTicket = sunatTicket; }
     public List<InvoiceItem> getItems() { return items; }
     public Instant getCreatedAt() { return createdAt; }
 }

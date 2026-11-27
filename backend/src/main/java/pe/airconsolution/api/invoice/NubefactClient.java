@@ -23,14 +23,10 @@ import pe.airconsolution.api.config.AppProperties;
  * Nubefact firma el XML, lo envía a SUNAT y devuelve el PDF oficial con código QR.
  */
 @Component
-public class NubefactClient {
+public class NubefactClient implements ElectronicInvoicing {
 
     private static final Logger log = LoggerFactory.getLogger(NubefactClient.class);
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-    /** Resultado del envío. accepted = null cuando no hubo respuesta (error de red). */
-    public record Result(Boolean accepted, String description, String pdfUrl, String hash) {
-    }
 
     private final AppProperties.Invoicing config;
     private final RestClient http;
@@ -43,10 +39,17 @@ public class NubefactClient {
         this.http = RestClient.builder().requestFactory(factory).build();
     }
 
-    public boolean enabled() {
-        return config.electronicEnabled();
+    @Override
+    public String label() {
+        return "Nubefact";
     }
 
+    @Override
+    public boolean enabled() {
+        return config.nubefactConfigured();
+    }
+
+    @Override
     public Result send(Invoice invoice) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("operacion", "generar_comprobante");
@@ -88,6 +91,7 @@ public class NubefactClient {
         return post(body, invoice.fullNumber());
     }
 
+    @Override
     public Result voidInvoice(Invoice invoice, String reason) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("operacion", "generar_anulacion");
@@ -110,11 +114,11 @@ public class NubefactClient {
                     .retrieve()
                     .body(Map.class);
             if (res == null) {
-                return new Result(null, "Nubefact no devolvió respuesta.", null, null);
+                return Result.unreachable("Nubefact no devolvió respuesta.");
             }
             Object errors = res.get("errors");
             if (errors != null) {
-                return new Result(false, String.valueOf(errors), null, null);
+                return Result.rejected(String.valueOf(errors));
             }
             boolean accepted = Boolean.TRUE.equals(res.get("aceptada_por_sunat"));
             String description = str(res.get("sunat_description"));
@@ -124,13 +128,14 @@ public class NubefactClient {
                 description = "Registrado en Nubefact; SUNAT lo validará en unos minutos.";
             }
             log.info("Comprobante {} enviado a Nubefact. Aceptado: {}", label, accepted);
-            return new Result(accepted, description, str(res.get("enlace_del_pdf")), str(res.get("codigo_hash")));
+            return new Result(accepted, false, description, str(res.get("enlace_del_pdf")), str(res.get("codigo_hash")),
+                    null, null, null);
         } catch (RestClientResponseException e) {
             log.warn("Nubefact rechazó {}: {}", label, e.getResponseBodyAsString());
-            return new Result(false, extractError(e.getResponseBodyAsString()), null, null);
+            return Result.rejected(extractError(e.getResponseBodyAsString()));
         } catch (RestClientException e) {
             log.warn("No se pudo contactar a Nubefact para {}", label, e);
-            return new Result(null, "No se pudo contactar al proveedor de facturación. Intenta de nuevo.", null, null);
+            return Result.unreachable("No se pudo contactar al proveedor de facturación. Intenta de nuevo.");
         }
     }
 

@@ -28,3 +28,16 @@ services:
         generateValue: true
       - key: ALLOWED_ORIGINS
         value: https://airconsolutionsac.com,https://www.airconsolutionsac.com,https://*.onrender.com
+      # Facturación electrónica directa con SUNAT (ver docs/SUNAT.md). Cárgalas en el panel de Render.
+      - key: INVOICE_PROVIDER
+        value: SUNAT
+      - key: SUNAT_MODE
+        value: BETA
+      - key: SUNAT_SOL_USER
+        sync: false
+      - key: SUNAT_SOL_PASSWORD
+        sync: false
+      - key: SUNAT_CERT_BASE64
+        sync: false
+      - key: SUNAT_CERT_PASSWORD
+        sync: false

@@ -143,7 +143,7 @@ export interface AdminStats {
 }
 
 export type InvoiceType = 'FACTURA' | 'BOLETA';
-export type InvoiceStatus = 'BORRADOR' | 'ACEPTADA' | 'RECHAZADA' | 'ERROR_ENVIO' | 'ANULADA';
+export type InvoiceStatus = 'BORRADOR' | 'ACEPTADA' | 'RECHAZADA' | 'ERROR_ENVIO' | 'BAJA_PENDIENTE' | 'ANULADA';
 
 export interface InvoiceItemInput {
   description: string;
@@ -199,6 +199,9 @@ export interface Invoice {
   sunatDescription: string | null;
   pdfUrl: string | null;
   hash: string | null;
+  /** Hay XML firmado / constancia (CDR) de SUNAT para descargar. */
+  hasXml: boolean;
+  hasCdr: boolean;
   createdAt: string;
   issuer: { ruc: string; businessName: string; address: string };
   items: InvoiceItem[];
@@ -221,6 +224,8 @@ export interface InvoicingSettings {
   seriesFactura: string;
   seriesBoleta: string;
   electronicEnabled: boolean;
+  /** Canal de envío, p. ej. "SUNAT", "SUNAT (pruebas beta)" o "Nubefact". */
+  channel: string;
 }
 
 export type QuoteStatus = 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA' | 'VENCIDA';
@@ -392,6 +397,9 @@ export const api = {
   createInvoice: (auth: string, body: InvoiceRequest) => request<Invoice>('POST', '/admin/invoices', { auth, body }),
   sendInvoice: (auth: string, id: number) => request<Invoice>('POST', `/admin/invoices/${id}/send`, { auth, body: {} }),
   voidInvoice: (auth: string, id: number, reason: string) => request<Invoice>('POST', `/admin/invoices/${id}/void`, { auth, body: { reason } }),
+  checkVoid: (auth: string, id: number) => request<Invoice>('POST', `/admin/invoices/${id}/void/status`, { auth, body: {} }),
+  invoiceXml: (auth: string, id: number) => request<Blob>('GET', `/admin/invoices/${id}/xml`, { auth, blob: true }),
+  invoiceCdr: (auth: string, id: number) => request<Blob>('GET', `/admin/invoices/${id}/cdr`, { auth, blob: true }),
 
   // ---- Cotizaciones ----
   quotes: (auth: string, page: number) => request<Page<QuoteSummary>>('GET', '/admin/quotes', { auth, query: { page, size: 15 } }),
