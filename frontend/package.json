@@ -12,7 +12,7 @@
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
     "@fontsource/poppins": "^5.3.0",
-    "@neondatabase/serverless": "0.10.4",
+    "@neondatabase/serverless": "1.2.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^7.9.0"
