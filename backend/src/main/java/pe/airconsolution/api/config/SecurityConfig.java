@@ -38,7 +38,8 @@ public class SecurityConfig {
             + "object-src 'none'; frame-ancestors 'none'";
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, RateLimitFilter rateLimitFilter) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, RateLimitFilter rateLimitFilter,
+            LoginAttemptFilter loginAttemptFilter) throws Exception {
         http
                 // API REST sin sesiones ni cookies: CSRF no aplica.
                 .csrf(csrf -> csrf.disable())
@@ -60,7 +61,9 @@ public class SecurityConfig {
                         .referrerPolicy(r -> r.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                         .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY))
                         .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000)))
-                .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.www.BasicAuthenticationFilter.class);
+                .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.www.BasicAuthenticationFilter.class)
+                // Bloquea el panel tras varias contraseñas equivocadas (ver LoginAttemptFilter).
+                .addFilterBefore(loginAttemptFilter, org.springframework.security.web.authentication.www.BasicAuthenticationFilter.class);
         return http.build();
     }
 

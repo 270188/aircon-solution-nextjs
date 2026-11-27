@@ -130,6 +130,51 @@ async function authorized(req: Request): Promise<boolean> {
   return basicOk(header) || (await sessionOk(header));
 }
 
+// ---------- bloqueo de intentos fallidos ----------
+// Tras LOGIN_MAX_PER_IP claves equivocadas desde la misma conexión (o LOGIN_MAX_TOTAL entre todas) en
+// LOGIN_WINDOW_MIN minutos, el panel responde 429 hasta que pase ese tiempo. El ingreso con Google no se bloquea.
+const LOGIN_MAX_PER_IP = 10;
+const LOGIN_MAX_TOTAL = 50;
+const LOGIN_WINDOW_MIN = 15;
+let failuresTableReady = false;
+
+/** IP real del visitante: Netlify la pone en x-nf-client-connection-ip y el navegador no la puede cambiar. */
+function clientIp(req: Request): string {
+  return req.headers.get('x-nf-client-connection-ip') ?? req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'desconocida';
+}
+
+async function ensureFailuresTable() {
+  if (failuresTableReady) return;
+  await sql(`create table if not exists admin_login_failures (
+    ip varchar(64) not null,
+    failed_at timestamp with time zone not null default now())`);
+  await sql('create index if not exists idx_admin_login_failures_time on admin_login_failures (failed_at)');
+  failuresTableReady = true;
+}
+
+/** true si esa conexión (o el panel en general) superó el límite de intentos. */
+async function loginLocked(ip: string): Promise<boolean> {
+  await ensureFailuresTable();
+  const [r] = (await sql(
+    `select count(*) filter (where ip = $1)::int as mine, count(*)::int as total
+       from admin_login_failures where failed_at > now() - make_interval(mins => $2)`,
+    [ip, LOGIN_WINDOW_MIN],
+  )) as { mine: number; total: number }[];
+  return r.mine >= LOGIN_MAX_PER_IP || r.total >= LOGIN_MAX_TOTAL;
+}
+
+async function recordLoginFailure(ip: string) {
+  await ensureFailuresTable();
+  await sql('insert into admin_login_failures (ip) values ($1)', [ip]);
+  // Limpieza: los intentos de hace más de un día ya no sirven.
+  if (Math.random() < 0.1) await sql(`delete from admin_login_failures where failed_at < now() - interval '1 day'`);
+}
+
+async function clearLoginFailures(ip: string) {
+  await ensureFailuresTable();
+  await sql('delete from admin_login_failures where ip = $1', [ip]);
+}
+
 // Columnas de una reserva en el formato que usa la página (fechas como texto, sin zonas horarias).
 const BOOKING_COLS = `id, code, name, phone, email, address, district, service_type, description,
   to_char(appointment_date, 'YYYY-MM-DD') as date, to_char(appointment_time, 'HH24:MI') as time, status, admin_notes,
@@ -309,14 +354,28 @@ async function route(req: Request, path: string, url: URL): Promise<Response> {
 
   // --- Panel (usuario y contraseña, o sesión de Google) ---
   if (!path.startsWith('v1/admin/')) throw new HttpError(404, 'No encontrado.');
+  const header = req.headers.get('authorization') ?? '';
+  const usesPassword = header.startsWith('Basic ');
+  const ip = clientIp(req);
+  if (usesPassword && (await loginLocked(ip))) {
+    return new Response(
+      JSON.stringify({ status: 429, detail: `Demasiados intentos fallidos. Espera ${LOGIN_WINDOW_MIN} minutos o entra con Google.` }),
+      { status: 429, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'Retry-After': String(LOGIN_WINDOW_MIN * 60) } },
+    );
+  }
   if (!(await authorized(req))) {
+    if (header) await recordLoginFailure(ip);
     return new Response(JSON.stringify({ detail: 'Usuario o contraseña incorrectos.' }), {
       status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
     });
   }
   const a = path.slice('v1/admin/'.length);
 
-  if (a === 'me' && m === 'GET') return json({ ok: true });
+  if (a === 'me' && m === 'GET') {
+    // Ingreso correcto: se borran los intentos fallidos de esa conexión.
+    if (usesPassword) await clearLoginFailures(ip);
+    return json({ ok: true });
+  }
 
   if (a === 'stats' && m === 'GET') {
     const today = limaNow().date;
