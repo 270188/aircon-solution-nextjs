@@ -1,7 +1,7 @@
 # Imagen única: la página React (Vite + TypeScript) se compila y la sirve el mismo Spring Boot que expone la API.
 
 # ---- 1. Frontend (React + Vite + TypeScript) ----
-FROM node:22-alpine AS web
+FROM node:26-alpine AS web
 WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json frontend/.npmrc ./
 RUN npm ci --no-audit --no-fund
